@@ -186,7 +186,6 @@ test('handleIntent maps hot/cold comfort routes', async () => {
   assert.equal(cold.data.plan.operations[0].value, 22);
 });
 
-
 test('help action returns capabilities', async () => {
   const adapter = new MockAdapter({});
   const bridge = new BridgeRuntime(adapter, {
