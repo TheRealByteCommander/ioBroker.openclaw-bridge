@@ -57,7 +57,21 @@ Zu wenige Beobachtungen, zu wenig Tage oder zu geringe Konfidenz.
 
 ---
 
-## 6) Timeout
+## 6) Guard blocked
+### Symptom
+`EGUARDFAILED` / `EDURATIONLIMIT` / `ECOOLDOWN` und Eintrag in `safety.lastGuardBlock`
+
+### Ursache
+Objekt-Regel (AND/OR/XOR) nicht erfüllt oder Einschaltdauer überschritten.
+
+### Fix
+- Fehlende Ventile/Bedingungen öffnen oder im selben Plan mitschalten
+- Tab **Regeln** prüfen
+- Dry-Run: `{ "action": "checkGuards", "id": "...", "value": true }`
+
+---
+
+## 7) Timeout
 ### Symptom
 `ETIMEOUT`
 

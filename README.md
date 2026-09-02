@@ -171,6 +171,29 @@ Weitere Actions: `getHabits`, `suggestAutomation` (Dry-Run), `applyHabit` (`name
 
 Persistierte States: `habits.mode`, `habits.observations`, `habits.profiles`, `habits.learningStatus`, `habits.lastSuggestion`, `habits.lastOptimization`.
 
+### Objekt-Regeln (AND / OR / XOR / Einschaltdauer)
+
+Im Admin-Tab **Regeln** können Ziel-Objekten Bedingungen zugewiesen werden. Die Bridge prüft sie vor jedem `setState` / `executePlan` / `optimizeHome`.
+
+Beispiel Brunnenpumpe (OR): Pumpe nur einschalten, wenn mindestens ein Ventil offen ist.
+
+| Feld | Wert |
+|---|---|
+| Ziel-Objekt | `0_userdata.0.pump.well` |
+| Wann | Beim Einschalten |
+| Logik | OR |
+| Bedingungs-IDs | `0_userdata.0.valve.bed1,0_userdata.0.valve.bed2` |
+
+Oder **Bedingungs-Prefix** `0_userdata.0.valve` – dann zählen alle Kind-States.
+
+Beispiel Steckdose 3: **Max. Ein (min) = 60**. Nach 1 Stunde schaltet die Bridge automatisch aus.
+
+AND = alle Bedingungen wahr, XOR = genau eine wahr. Erweiterte Vergleiche über JSON, z. B. `[{"id":"0_userdata.0.tank.level","op":"gte","value":20}]`.
+
+Dry-Run: `{ "action": "checkGuards", "id": "0_userdata.0.pump.well", "value": true }`
+
+Ventil und Pumpe im selben Plan: die Bridge schaltet Bedingungen zuerst, danach das geschützte Objekt.
+
 ## 4) Beispiel-Datenfluss (natürlicher Dialog)
 
 1. User: **„Mir ist kalt.“**

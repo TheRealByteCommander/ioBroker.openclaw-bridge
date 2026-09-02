@@ -97,6 +97,132 @@
         }
       }
     },
+    "tabRules": {
+      "type": "panel",
+      "label": {
+        "en": "Rules",
+        "de": "Regeln"
+      },
+      "items": {
+        "_rulesIntro": {
+          "type": "staticText",
+          "text": {
+            "en": "Assign AND / OR / XOR conditions and duration limits to objects. Example: the well pump may turn on only if at least one valve is open (OR). Example: socket 3 may stay on for 1 hour maximum.",
+            "de": "Objekten AND-/OR-/XOR-Bedingungen und Zeitlimits zuweisen. Beispiel: Die Brunnenpumpe darf nur einschalten, wenn mindestens ein Ventil offen ist (OR). Beispiel: Steckdose 3 darf maximal 1 Stunde eingeschaltet bleiben."
+          },
+          "xs": 12
+        },
+        "guardRules": {
+          "type": "table",
+          "label": {
+            "en": "Object rules",
+            "de": "Objekt-Regeln"
+          },
+          "help": {
+            "en": "Condition IDs are a CSV of states. Combinator OR = at least one true, AND = all true, XOR = exactly one true. Prefix expands to all child states. Optional JSON: [{\"id\":\"...\",\"op\":\"gte\",\"value\":20}].",
+            "de": "Bedingungs-IDs sind CSV von States. OR = mindestens eine wahr, AND = alle wahr, XOR = genau eine wahr. Prefix nimmt alle Kind-States. Optionales JSON: [{\"id\":\"...\",\"op\":\"gte\",\"value\":20}]."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "items": [
+            {
+              "type": "checkbox",
+              "attr": "enabled",
+              "title": { "en": "On", "de": "An" },
+              "default": true,
+              "width": "50px"
+            },
+            {
+              "type": "text",
+              "attr": "name",
+              "title": { "en": "Name", "de": "Name" },
+              "width": "140px"
+            },
+            {
+              "type": "objectId",
+              "attr": "targetId",
+              "title": { "en": "Target object", "de": "Ziel-Objekt" },
+              "width": "220px"
+            },
+            {
+              "type": "select",
+              "attr": "when",
+              "title": { "en": "When", "de": "Wann" },
+              "default": "turn_on",
+              "width": "120px",
+              "options": [
+                { "value": "turn_on", "label": { "en": "On turning on", "de": "Beim Einschalten" } },
+                { "value": "turn_off", "label": { "en": "On turning off", "de": "Beim Ausschalten" } },
+                { "value": "always", "label": { "en": "Always", "de": "Immer" } }
+              ]
+            },
+            {
+              "type": "select",
+              "attr": "combinator",
+              "title": { "en": "Logic", "de": "Logik" },
+              "default": "or",
+              "width": "90px",
+              "options": [
+                { "value": "or", "label": "OR" },
+                { "value": "and", "label": "AND" },
+                { "value": "xor", "label": "XOR" }
+              ]
+            },
+            {
+              "type": "text",
+              "attr": "conditionIds",
+              "title": { "en": "Condition IDs (CSV)", "de": "Bedingungs-IDs (CSV)" },
+              "help": {
+                "en": "e.g. 0_userdata.0.valve.bed1,0_userdata.0.valve.bed2",
+                "de": "z. B. 0_userdata.0.valve.bed1,0_userdata.0.valve.bed2"
+              },
+              "width": "240px"
+            },
+            {
+              "type": "text",
+              "attr": "conditionPrefix",
+              "title": { "en": "Condition prefix", "de": "Bedingungs-Prefix" },
+              "help": {
+                "en": "All states under this prefix participate in AND/OR/XOR",
+                "de": "Alle States unter diesem Prefix zählen für AND/OR/XOR"
+              },
+              "width": "180px"
+            },
+            {
+              "type": "text",
+              "attr": "conditionsJson",
+              "title": { "en": "Advanced conditions JSON", "de": "Erweiterte Bedingungen JSON" },
+              "help": {
+                "en": "Optional compares, e.g. [{\"id\":\"0_userdata.0.tank.level\",\"op\":\"gte\",\"value\":20}]",
+                "de": "Optionale Vergleiche, z. B. [{\"id\":\"0_userdata.0.tank.level\",\"op\":\"gte\",\"value\":20}]"
+              },
+              "width": "240px"
+            },
+            {
+              "type": "number",
+              "attr": "maxOnMinutes",
+              "title": { "en": "Max on (min)", "de": "Max. Ein (min)" },
+              "min": 0,
+              "max": 10080,
+              "step": 1,
+              "default": 0,
+              "width": "110px"
+            },
+            {
+              "type": "number",
+              "attr": "minOffMinutes",
+              "title": { "en": "Min off (min)", "de": "Min. Aus (min)" },
+              "min": 0,
+              "max": 10080,
+              "step": 1,
+              "default": 0,
+              "width": "110px"
+            }
+          ]
+        }
+      }
+    },
     "tabDevices": {
       "type": "panel",
       "label": {

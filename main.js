@@ -27,20 +27,27 @@ class OpenclawBridge extends utils.Adapter {
       await this.subscribeForeignStatesAsync(`${prefix}.*`);
       this.log.info(`habit watch enabled for ${prefix}.*`);
     }
+    for (const id of this.bridge.guardTargetIds()) {
+      await this.subscribeForeignStatesAsync(id);
+      this.log.info(`guard watch enabled for ${id}`);
+    }
 
     await this.setStateAsync('control.lastResult', JSON.stringify({ ok: true, message: 'bridge ready', habitMode: this.bridge.habitMode }), true);
     await this.setStateAsync('info.lastUpdated', new Date().toISOString(), true);
   }
 
   async onStateChange(id, state) {
-    if (!state || state.ack) return;
+    if (!state) return;
 
     try {
-      if (id.endsWith('control.command')) {
+      if (!state.ack && id.endsWith('control.command')) {
         await this.bridge.processCommand(state.val);
         return;
       }
-      if (this.bridge.shouldLearnFromState(id)) {
+      if (this.bridge.isGuardTarget(id)) {
+        this.bridge.trackGuardState(id, state);
+      }
+      if (!state.ack && this.bridge.shouldLearnFromState(id)) {
         await this.bridge.observeForeignStateChange(id, state);
       }
     } catch (err) {
@@ -51,6 +58,7 @@ class OpenclawBridge extends utils.Adapter {
   async onUnload(callback) {
     try {
       this.log.info('openclaw-bridge stopping ...');
+      if (this.bridge) this.bridge.stopGuardTimers();
       callback();
     } catch {
       callback();

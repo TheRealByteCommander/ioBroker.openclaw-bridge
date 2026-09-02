@@ -29,6 +29,7 @@ test('jsonConfig is valid JSON with tabs for operator settings', () => {
   const config = JSON.parse(raw);
   assert.equal(config.type, 'tabs');
   assert.ok(config.items.tabSecurity);
+  assert.ok(config.items.tabRules);
   assert.ok(config.items.tabDevices);
   assert.ok(config.items.tabHabits);
   assert.ok(config.items.tabVoice);

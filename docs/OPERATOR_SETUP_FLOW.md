@@ -24,6 +24,9 @@ Schneller, sicherer Start ohne trial-and-error.
 - `EACTIONFORBIDDEN` → Action korrigieren oder `allowedActions` anpassen
 - `EIDFORBIDDEN` → State-ID/Prefix korrigieren
 - `ECONFIRMREQUIRED` → Kommando mit `confirmation: true` erneut senden
+- `EGUARDFAILED` → AND/OR/XOR-Bedingungen erfüllen oder im selben Plan mitschalten
+- `EDURATIONLIMIT` → Objekt ist länger eingeschaltet als `Max. Ein`
+- `ECOOLDOWN` → `Min. Aus` abwarten
 - `ETIMEOUT` → Last/Timeout prüfen
 
 ## 4) Operator-Kurzbefehle

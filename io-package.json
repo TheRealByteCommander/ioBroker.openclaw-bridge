@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.9.1",
+    "version": "0.10.0",
     "news": {
+      "0.10.0": {
+        "en": "Add per-object AND/OR/XOR guards and max-on duration limits in the admin settings page",
+        "de": "Objekt-Regeln mit AND/OR/XOR und maximaler Einschaltdauer in der Admin-Einstellungsseite"
+      },
       "0.9.1": {
         "en": "Add typical ioBroker admin settings page (jsonConfig) for all native options",
         "de": "Typische ioBroker-Admin-Einstellungsseite (jsonConfig) für alle Native-Optionen ergänzt"
@@ -75,7 +79,7 @@
   },
   "native": {
     "allowedPrefixes": "javascript.0,0_userdata.0,alexa2.0",
-    "allowedActions": "getState,setState,listStates,getStates,ping,help,handleIntent,executePlan,validatePlan,emitContextEvent,getContextEvents,handlePvSurplus,batchSetStates,syncSnapshot,getTelemetry,speak,transcribe,voiceCommand,recordObservation,getHabits,getLearningStatus,setHabitMode,evaluateHabits,suggestAutomation,applyHabit,optimizeHome",
+    "allowedActions": "getState,setState,listStates,getStates,ping,help,handleIntent,executePlan,validatePlan,emitContextEvent,getContextEvents,handlePvSurplus,batchSetStates,syncSnapshot,getTelemetry,speak,transcribe,voiceCommand,recordObservation,getHabits,getLearningStatus,setHabitMode,evaluateHabits,suggestAutomation,applyHabit,optimizeHome,checkGuards",
     "commandTimeoutMs": 5000,
     "setStateAckAllowed": true,
     "criticalStatePrefixes": "system.,admin.0",
@@ -108,7 +112,8 @@
     "habitLightStateId": "0_userdata.0.light.livingroom",
     "habitBedtimeTemperature": 18,
     "habitMorningTemperature": 21,
-    "habitScenesJson": ""
+    "habitScenesJson": "",
+    "guardRules": []
   },
   "objects": [
     {
@@ -456,6 +461,32 @@
         "read": true,
         "write": false,
         "def": "{}"
+      },
+      "native": {}
+    },
+    {
+      "_id": "guards.runtime",
+      "type": "state",
+      "common": {
+        "name": "Guard on/off timestamps",
+        "type": "string",
+        "role": "json",
+        "read": true,
+        "write": false,
+        "def": "{}"
+      },
+      "native": {}
+    },
+    {
+      "_id": "safety.lastGuardBlock",
+      "type": "state",
+      "common": {
+        "name": "Last blocked guard write",
+        "type": "string",
+        "role": "json",
+        "read": true,
+        "write": false,
+        "def": ""
       },
       "native": {}
     }
