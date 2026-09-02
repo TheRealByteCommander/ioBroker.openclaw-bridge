@@ -1,0 +1,892 @@
+{
+  "type": "tabs",
+  "items": {
+    "tabSecurity": {
+      "type": "panel",
+      "label": {
+        "en": "Security",
+        "de": "Sicherheit"
+      },
+      "items": {
+        "_intro": {
+          "type": "staticText",
+          "text": {
+            "en": "These settings control what OpenClaw may read and write. Start with narrow prefixes and widen only as needed.",
+            "de": "Diese Einstellungen steuern, was OpenClaw lesen und schreiben darf. Prefixe zunächst eng halten und nur bei Bedarf erweitern."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "allowedPrefixes": {
+          "type": "chips",
+          "delimiter": ",",
+          "label": {
+            "en": "Allowed prefixes",
+            "de": "Erlaubte Prefixe"
+          },
+          "help": {
+            "en": "Only states under these namespaces can be read or written, e.g. 0_userdata.0 or javascript.0",
+            "de": "Nur States unter diesen Namensräumen dürfen gelesen oder geschrieben werden, z. B. 0_userdata.0 oder javascript.0"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "allowedActions": {
+          "newLine": true,
+          "type": "chips",
+          "delimiter": ",",
+          "label": {
+            "en": "Allowed actions",
+            "de": "Erlaubte Actions"
+          },
+          "help": {
+            "en": "Whitelist of JSON commands OpenClaw may send to control.command",
+            "de": "Whitelist der JSON-Kommandos, die OpenClaw an control.command senden darf"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "criticalStatePrefixes": {
+          "newLine": true,
+          "type": "chips",
+          "delimiter": ",",
+          "label": {
+            "en": "Critical prefixes",
+            "de": "Kritische Prefixe"
+          },
+          "help": {
+            "en": "Writes to these IDs require confirmation: true",
+            "de": "Schreibzugriffe auf diese IDs erfordern confirmation: true"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 6
+        },
+        "requireConfirmationActions": {
+          "type": "chips",
+          "delimiter": ",",
+          "label": {
+            "en": "Actions requiring confirmation",
+            "de": "Actions mit Bestätigungspflicht"
+          },
+          "help": {
+            "en": "These actions always require confirmation: true, e.g. executePlan",
+            "de": "Diese Actions verlangen immer confirmation: true, z. B. executePlan"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 6
+        },
+        "setStateAckAllowed": {
+          "newLine": true,
+          "type": "checkbox",
+          "label": {
+            "en": "Allow ack=true on setState",
+            "de": "ack=true bei setState erlauben"
+          },
+          "help": {
+            "en": "If disabled, OpenClaw cannot write acknowledged values (typical device feedback).",
+            "de": "Wenn deaktiviert, darf OpenClaw keine bestätigten Werte schreiben (typisches Geräte-Feedback)."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 6
+        }
+      }
+    },
+    "tabRules": {
+      "type": "panel",
+      "label": {
+        "en": "Rules",
+        "de": "Regeln"
+      },
+      "items": {
+        "_rulesIntro": {
+          "type": "staticText",
+          "text": {
+            "en": "These rules are the operating envelope for the OpenClaw agent. It may optimize freely inside them (AND/OR/XOR, thresholds, max on-time). Writes outside the envelope are rejected.",
+            "de": "Diese Regeln sind die Rahmenbedingungen für den OpenClaw-Agenten. Innerhalb dieser Grenzen darf er intelligent steuern und optimieren (AND/OR/XOR, Schwellwerte, max. Einschaltdauer). Alles außerhalb wird abgelehnt."
+          },
+          "xs": 12
+        },
+        "guardRules": {
+          "type": "table",
+          "label": {
+            "en": "Object rules",
+            "de": "Objekt-Regeln"
+          },
+          "help": {
+            "en": "Condition IDs are a CSV of states. Combinator OR = at least one true, AND = all true, XOR = exactly one true. Prefix expands to all child states. Optional JSON: [{\"id\":\"...\",\"op\":\"gte\",\"value\":20}].",
+            "de": "Bedingungs-IDs sind CSV von States. OR = mindestens eine wahr, AND = alle wahr, XOR = genau eine wahr. Prefix nimmt alle Kind-States. Optionales JSON: [{\"id\":\"...\",\"op\":\"gte\",\"value\":20}]."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "items": [
+            {
+              "type": "checkbox",
+              "attr": "enabled",
+              "title": { "en": "On", "de": "An" },
+              "default": true,
+              "width": "50px"
+            },
+            {
+              "type": "text",
+              "attr": "name",
+              "title": { "en": "Name", "de": "Name" },
+              "width": "140px"
+            },
+            {
+              "type": "objectId",
+              "attr": "targetId",
+              "title": { "en": "Target object", "de": "Ziel-Objekt" },
+              "width": "220px"
+            },
+            {
+              "type": "select",
+              "attr": "when",
+              "title": { "en": "When", "de": "Wann" },
+              "default": "turn_on",
+              "width": "120px",
+              "options": [
+                { "value": "turn_on", "label": { "en": "On turning on", "de": "Beim Einschalten" } },
+                { "value": "turn_off", "label": { "en": "On turning off", "de": "Beim Ausschalten" } },
+                { "value": "always", "label": { "en": "Always", "de": "Immer" } }
+              ]
+            },
+            {
+              "type": "select",
+              "attr": "combinator",
+              "title": { "en": "Logic", "de": "Logik" },
+              "default": "or",
+              "width": "90px",
+              "options": [
+                { "value": "or", "label": "OR" },
+                { "value": "and", "label": "AND" },
+                { "value": "xor", "label": "XOR" }
+              ]
+            },
+            {
+              "type": "text",
+              "attr": "conditionIds",
+              "title": { "en": "Condition IDs (CSV)", "de": "Bedingungs-IDs (CSV)" },
+              "help": {
+                "en": "e.g. 0_userdata.0.valve.bed1,0_userdata.0.valve.bed2",
+                "de": "z. B. 0_userdata.0.valve.bed1,0_userdata.0.valve.bed2"
+              },
+              "width": "240px"
+            },
+            {
+              "type": "text",
+              "attr": "conditionPrefix",
+              "title": { "en": "Condition prefix", "de": "Bedingungs-Prefix" },
+              "help": {
+                "en": "All states under this prefix participate in AND/OR/XOR",
+                "de": "Alle States unter diesem Prefix zählen für AND/OR/XOR"
+              },
+              "width": "180px"
+            },
+            {
+              "type": "text",
+              "attr": "conditionsJson",
+              "title": { "en": "Advanced conditions JSON", "de": "Erweiterte Bedingungen JSON" },
+              "help": {
+                "en": "Optional extra compares, e.g. [{\"id\":\"0_userdata.0.tank.level\",\"op\":\"gte\",\"value\":20}]",
+                "de": "Weitere Vergleiche, z. B. [{\"id\":\"0_userdata.0.tank.level\",\"op\":\"gte\",\"value\":20}]"
+              },
+              "width": "200px"
+            },
+            {
+              "type": "objectId",
+              "attr": "thresholdId",
+              "title": { "en": "Threshold state", "de": "Schwellwert-State" },
+              "help": {
+                "en": "e.g. PV surplus watts",
+                "de": "z. B. PV-Überschuss in Watt"
+              },
+              "width": "200px"
+            },
+            {
+              "type": "select",
+              "attr": "thresholdOp",
+              "title": { "en": "Op", "de": "Op" },
+              "default": "gte",
+              "width": "90px",
+              "options": [
+                { "value": "gte", "label": ">=" },
+                { "value": "gt", "label": ">" },
+                { "value": "lte", "label": "<=" },
+                { "value": "lt", "label": "<" },
+                { "value": "eq", "label": "=" }
+              ]
+            },
+            {
+              "type": "number",
+              "attr": "thresholdValue",
+              "title": { "en": "Threshold value", "de": "Schwellwert" },
+              "help": {
+                "en": "Pool heating example: 4000",
+                "de": "Beispiel Poolheizung: 4000"
+              },
+              "min": -1000000,
+              "max": 10000000,
+              "step": 1,
+              "width": "110px"
+            },
+            {
+              "type": "number",
+              "attr": "maxOnMinutes",
+              "title": { "en": "Max on (min)", "de": "Max. Ein (min)" },
+              "min": 0,
+              "max": 10080,
+              "step": 1,
+              "default": 0,
+              "width": "110px"
+            },
+            {
+              "type": "number",
+              "attr": "minOffMinutes",
+              "title": { "en": "Min off (min)", "de": "Min. Aus (min)" },
+              "min": 0,
+              "max": 10080,
+              "step": 1,
+              "default": 0,
+              "width": "110px"
+            }
+          ]
+        }
+      }
+    },
+    "tabDevices": {
+      "type": "panel",
+      "label": {
+        "en": "Devices",
+        "de": "Geräte"
+      },
+      "items": {
+        "_comfortHeader": {
+          "type": "header",
+          "text": {
+            "en": "Comfort",
+            "de": "Komfort"
+          },
+          "size": 2,
+          "xs": 12
+        },
+        "comfortTemperatureStateId": {
+          "type": "objectId",
+          "label": {
+            "en": "Target temperature state",
+            "de": "Solltemperatur-State"
+          },
+          "help": {
+            "en": "Used by intents such as \"I am cold\" / \"I am hot\"",
+            "de": "Wird von Intents wie „mir ist kalt“ / „mir ist heiß“ verwendet"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 8
+        },
+        "comfortTempStep": {
+          "type": "number",
+          "min": 0.1,
+          "max": 5,
+          "step": 0.1,
+          "label": {
+            "en": "Temperature step",
+            "de": "Temperatur-Schritt"
+          },
+          "help": {
+            "en": "Degrees added or removed per comfort intent",
+            "de": "Grad, die pro Komfort-Intent addiert oder subtrahiert werden"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "habitLightStateId": {
+          "newLine": true,
+          "type": "objectId",
+          "label": {
+            "en": "Main light state",
+            "de": "Hauptlicht-State"
+          },
+          "help": {
+            "en": "Default scene target for bedtime, presence and light on/off intents",
+            "de": "Standard-Szenenziel für Schlafen, Anwesenheit und Licht an/aus"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 8
+        },
+        "habitBedtimeTemperature": {
+          "type": "number",
+          "min": 5,
+          "max": 30,
+          "step": 0.5,
+          "label": {
+            "en": "Bedtime temperature",
+            "de": "Schlafenszeit-Temperatur"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 2
+        },
+        "habitMorningTemperature": {
+          "type": "number",
+          "min": 5,
+          "max": 30,
+          "step": 0.5,
+          "label": {
+            "en": "Morning temperature",
+            "de": "Morgen-Temperatur"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 2
+        },
+        "_energyHeader": {
+          "newLine": true,
+          "type": "header",
+          "text": {
+            "en": "Energy / PV surplus",
+            "de": "Energie / PV-Überschuss"
+          },
+          "size": 2,
+          "xs": 12
+        },
+        "pvSurplusLoadStateId": {
+          "type": "objectId",
+          "label": {
+            "en": "PV surplus load state",
+            "de": "PV-Überschuss-Last-State"
+          },
+          "help": {
+            "en": "Boolean state switched by handlePvSurplus / optimizeHome",
+            "de": "Boolescher State, den handlePvSurplus / optimizeHome schaltet"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 8
+        },
+        "pvSurplusMinWatts": {
+          "type": "number",
+          "min": 0,
+          "max": 100000,
+          "step": 50,
+          "label": {
+            "en": "Default PV surplus threshold",
+            "de": "Standard-PV-Überschuss-Schwelle"
+          },
+          "help": {
+            "en": "Used for the default surplus load if the table below is empty",
+            "de": "Gilt für die Standard-Überschusslast, wenn die Tabelle unten leer ist"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "pvPowerStateId": {
+          "newLine": true,
+          "type": "objectId",
+          "label": {
+            "en": "PV surplus power state (W)",
+            "de": "PV-Überschuss-Leistungsstate (W)"
+          },
+          "help": {
+            "en": "Current surplus in watts. Used when handlePvSurplus / optimizeHome is called without watts.",
+            "de": "Aktueller Überschuss in Watt. Wird genutzt, wenn handlePvSurplus / optimizeHome ohne watts aufgerufen wird."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "_surplusHeader": {
+          "newLine": true,
+          "type": "header",
+          "text": {
+            "en": "Surplus loads by threshold",
+            "de": "Überschuss-Lasten nach Schwellwert"
+          },
+          "size": 3,
+          "xs": 12
+        },
+        "_surplusHelp": {
+          "type": "staticText",
+          "text": {
+            "en": "Each row is switched when PV surplus reaches min watts. Example: pool heating, min 4000 W. Off-below is hysteresis (stay on until surplus falls below that value).",
+            "de": "Jede Zeile wird eingeschaltet, sobald der PV-Überschuss die Mindest-Watt erreicht. Beispiel: Poolheizung, min. 4000 W. Aus-unter ist die Hysterese (bleibt an, bis der Überschuss darunter fällt)."
+          },
+          "xs": 12
+        },
+        "surplusLoads": {
+          "type": "table",
+          "label": {
+            "en": "PV surplus loads",
+            "de": "PV-Überschuss-Lasten"
+          },
+          "xs": 12,
+          "items": [
+            {
+              "type": "checkbox",
+              "attr": "enabled",
+              "title": { "en": "On", "de": "An" },
+              "default": true,
+              "width": "50px"
+            },
+            {
+              "type": "text",
+              "attr": "name",
+              "title": { "en": "Name", "de": "Name" },
+              "default": "Poolheizung",
+              "width": "140px"
+            },
+            {
+              "type": "objectId",
+              "attr": "targetId",
+              "title": { "en": "Load / device", "de": "Last / Gerät" },
+              "width": "220px"
+            },
+            {
+              "type": "number",
+              "attr": "minWatts",
+              "title": { "en": "On at (W)", "de": "Ein ab (W)" },
+              "min": 0,
+              "max": 100000,
+              "step": 50,
+              "default": 4000,
+              "width": "110px"
+            },
+            {
+              "type": "number",
+              "attr": "offBelowWatts",
+              "title": { "en": "Off below (W)", "de": "Aus unter (W)" },
+              "min": 0,
+              "max": 100000,
+              "step": 50,
+              "default": 2500,
+              "width": "120px"
+            },
+            {
+              "type": "number",
+              "attr": "priority",
+              "title": { "en": "Priority", "de": "Priorität" },
+              "help": {
+                "en": "Lower number first",
+                "de": "Niedrigere Zahl zuerst"
+              },
+              "min": 1,
+              "max": 1000,
+              "step": 1,
+              "default": 100,
+              "width": "90px"
+            }
+          ]
+        }
+      }
+    },
+    "tabHabits": {
+      "type": "panel",
+      "label": {
+        "en": "Habits",
+        "de": "Gewohnheiten"
+      },
+      "items": {
+        "_habitIntro": {
+          "type": "staticText",
+          "text": {
+            "en": "Learning starts in observe mode. After enough samples the adapter can suggest, and only with confirmation it may run autonomously.",
+            "de": "Die Lernphase startet im Modus Beobachten. Nach genug Stichproben kann der Adapter vorschlagen; autonom nur mit Bestätigung."
+          },
+          "xs": 12
+        },
+        "habitMode": {
+          "type": "select",
+          "label": {
+            "en": "Initial habit mode",
+            "de": "Start-Gewohnheitsmodus"
+          },
+          "help": {
+            "en": "Runtime mode can still be changed by OpenClaw via setHabitMode",
+            "de": "Zur Laufzeit kann OpenClaw den Modus weiter über setHabitMode ändern"
+          },
+          "options": [
+            {
+              "value": "observe",
+              "label": {
+                "en": "Observe (learn only)",
+                "de": "Beobachten (nur lernen)"
+              }
+            },
+            {
+              "value": "suggest",
+              "label": {
+                "en": "Suggest (plans only unless execute=true)",
+                "de": "Vorschlagen (nur Pläne, außer execute=true)"
+              }
+            },
+            {
+              "value": "autonomous",
+              "label": {
+                "en": "Autonomous (control after learning)",
+                "de": "Autonom (nach Lernphase steuern)"
+              }
+            }
+          ],
+          "xs": 12,
+          "sm": 12,
+          "md": 6
+        },
+        "habitAutoPromote": {
+          "type": "checkbox",
+          "label": {
+            "en": "Auto-promote observe → suggest",
+            "de": "Automatisch von Beobachten auf Vorschlagen wechseln"
+          },
+          "help": {
+            "en": "Never auto-promotes to autonomous",
+            "de": "Wechselt niemals automatisch nach autonom"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 6
+        },
+        "habitMinObservations": {
+          "newLine": true,
+          "type": "number",
+          "min": 1,
+          "max": 500,
+          "step": 1,
+          "label": {
+            "en": "Minimum observations",
+            "de": "Mindest-Beobachtungen"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 3
+        },
+        "habitMinDays": {
+          "type": "number",
+          "min": 1,
+          "max": 60,
+          "step": 1,
+          "label": {
+            "en": "Minimum days",
+            "de": "Mindest-Tage"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 3
+        },
+        "habitMinConfidence": {
+          "type": "number",
+          "min": 0.05,
+          "max": 1,
+          "step": 0.05,
+          "label": {
+            "en": "Minimum confidence",
+            "de": "Mindest-Konfidenz"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 3
+        },
+        "habitSlotMinutes": {
+          "type": "number",
+          "min": 5,
+          "max": 120,
+          "step": 5,
+          "label": {
+            "en": "Time slot (minutes)",
+            "de": "Zeitslot (Minuten)"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 3
+        },
+        "habitMatchSlackMinutes": {
+          "newLine": true,
+          "type": "number",
+          "min": 0,
+          "max": 180,
+          "step": 5,
+          "label": {
+            "en": "Match slack (minutes)",
+            "de": "Treffer-Toleranz (Minuten)"
+          },
+          "help": {
+            "en": "How far around the learned time a habit may still match",
+            "de": "Wie weit um die gelernte Uhrzeit ein Habit noch greifen darf"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 3
+        },
+        "habitObservationLimit": {
+          "type": "number",
+          "min": 20,
+          "max": 5000,
+          "step": 10,
+          "label": {
+            "en": "Observation history limit",
+            "de": "Limit Beobachtungshistorie"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 3
+        },
+        "habitOverrideCooldownMs": {
+          "type": "number",
+          "min": 0,
+          "max": 86400000,
+          "step": 60000,
+          "label": {
+            "en": "Manual override cooldown",
+            "de": "Cooldown nach manuellem Eingriff"
+          },
+          "help": {
+            "en": "Milliseconds to keep a recently changed state (default 7200000 = 2 h)",
+            "de": "Millisekunden, in denen ein kürzlich geänderter State nicht überschrieben wird (Standard 7200000 = 2 h)"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 3
+        },
+        "habitMinApplyIntervalMs": {
+          "type": "number",
+          "min": 0,
+          "max": 86400000,
+          "step": 60000,
+          "label": {
+            "en": "Minimum apply interval",
+            "de": "Mindestabstand zwischen Anwendungen"
+          },
+          "help": {
+            "en": "Prevents flapping (default 1800000 = 30 min)",
+            "de": "Verhindert Flattern (Standard 1800000 = 30 min)"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 3
+        },
+        "habitLearnFromCommands": {
+          "newLine": true,
+          "type": "checkbox",
+          "label": {
+            "en": "Learn from commands",
+            "de": "Aus Kommandos lernen"
+          },
+          "help": {
+            "en": "Record observations from setState / executePlan / handleIntent",
+            "de": "Beobachtungen aus setState / executePlan / handleIntent speichern"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 6
+        },
+        "habitWatchPrefixes": {
+          "type": "chips",
+          "delimiter": ",",
+          "label": {
+            "en": "Watch prefixes (passive learning)",
+            "de": "Watch-Prefixe (passives Lernen)"
+          },
+          "help": {
+            "en": "Optional extra namespaces to subscribe for user writes, e.g. zigbee.0",
+            "de": "Optionale zusätzliche Namensräume für Nutzer-Writes, z. B. zigbee.0"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 6
+        },
+        "habitScenesJson": {
+          "newLine": true,
+          "type": "text",
+          "minRows": 6,
+          "maxRows": 16,
+          "validateJson": true,
+          "allowEmpty": true,
+          "label": {
+            "en": "Custom scene templates (JSON)",
+            "de": "Eigene Szenen-Templates (JSON)"
+          },
+          "help": {
+            "en": "Optional override, e.g. {\"bedtime\":[{\"id\":\"0_userdata.0.light.livingroom\",\"value\":false}]}. Leave empty to use built-in templates.",
+            "de": "Optionaler Override, z. B. {\"bedtime\":[{\"id\":\"0_userdata.0.light.livingroom\",\"value\":false}]}. Leer lassen für die eingebauten Templates."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        }
+      }
+    },
+    "tabVoice": {
+      "type": "panel",
+      "label": {
+        "en": "Voice",
+        "de": "Sprache"
+      },
+      "items": {
+        "alexaTtsStateId": {
+          "type": "objectId",
+          "label": {
+            "en": "Alexa speak state",
+            "de": "Alexa-Speak-State"
+          },
+          "help": {
+            "en": "State written by the speak / voiceCommand actions",
+            "de": "State, den die Actions speak / voiceCommand beschreiben"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "sttCommand": {
+          "newLine": true,
+          "type": "text",
+          "label": {
+            "en": "STT command",
+            "de": "STT-Kommando"
+          },
+          "help": {
+            "en": "Local executable, e.g. faster-whisper",
+            "de": "Lokales Executable, z. B. faster-whisper"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "sttModel": {
+          "type": "select",
+          "label": {
+            "en": "STT model",
+            "de": "STT-Modell"
+          },
+          "options": [
+            { "label": "tiny", "value": "tiny" },
+            { "label": "base", "value": "base" },
+            { "label": "small", "value": "small" },
+            { "label": "medium", "value": "medium" },
+            { "label": "large", "value": "large" }
+          ],
+          "xs": 12,
+          "sm": 6,
+          "md": 4
+        },
+        "sttLanguage": {
+          "type": "language",
+          "label": {
+            "en": "STT language",
+            "de": "STT-Sprache"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 4
+        }
+      }
+    },
+    "tabAdvanced": {
+      "type": "panel",
+      "label": {
+        "en": "Advanced",
+        "de": "Erweitert"
+      },
+      "items": {
+        "commandTimeoutMs": {
+          "type": "number",
+          "min": 500,
+          "max": 120000,
+          "step": 500,
+          "label": {
+            "en": "Command timeout",
+            "de": "Kommando-Timeout"
+          },
+          "help": {
+            "en": "Milliseconds until a command fails with ETIMEOUT",
+            "de": "Millisekunden, bis ein Kommando mit ETIMEOUT scheitert"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 4
+        },
+        "retryAttempts": {
+          "type": "number",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "label": {
+            "en": "Retry attempts",
+            "de": "Retry-Versuche"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 4
+        },
+        "retryBackoffMs": {
+          "type": "number",
+          "min": 0,
+          "max": 5000,
+          "step": 50,
+          "label": {
+            "en": "Retry backoff",
+            "de": "Retry-Backoff"
+          },
+          "help": {
+            "en": "Base delay in milliseconds, multiplied by the attempt number",
+            "de": "Basisverzögerung in Millisekunden, multipliziert mit der Versuchnummer"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 4
+        },
+        "maxBatchOperations": {
+          "newLine": true,
+          "type": "number",
+          "min": 1,
+          "max": 200,
+          "step": 1,
+          "label": {
+            "en": "Max batch operations",
+            "de": "Max. Batch-Operationen"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 4
+        },
+        "queueHighWatermark": {
+          "type": "number",
+          "min": 1,
+          "max": 1000,
+          "step": 1,
+          "label": {
+            "en": "Queue high watermark",
+            "de": "Queue-High-Watermark"
+          },
+          "help": {
+            "en": "Additional commands are rejected with EQUEUEFULL",
+            "de": "Weitere Kommandos werden mit EQUEUEFULL abgelehnt"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 4
+        },
+        "contextEventHistoryLimit": {
+          "type": "number",
+          "min": 5,
+          "max": 500,
+          "step": 1,
+          "label": {
+            "en": "Context event history limit",
+            "de": "Limit Kontext-Event-Historie"
+          },
+          "xs": 12,
+          "sm": 6,
+          "md": 4
+        }
+      }
+    }
+  }
+}

@@ -33,7 +33,45 @@ State außerhalb `allowedPrefixes`.
 
 ---
 
-## 4) Timeout
+## 4) Learning phase not complete
+### Symptom
+`ENOTREADY` bei `setHabitMode` / `autonomous`
+
+### Ursache
+Zu wenige Beobachtungen, zu wenig Tage oder zu geringe Konfidenz.
+
+### Fix
+- Weiter `recordObservation` / echte Nutzeraktionen sammeln
+- `getLearningStatus` prüfen
+- Schwellen nur bewusst senken (`habitMinObservations`, `habitMinDays`, `habitMinConfidence`)
+
+---
+
+## 5) Habit not found
+### Symptom
+`EHABITNOTFOUND`
+
+### Fix
+- Zuerst lernen oder Szenen-Template (`habitLightStateId` / `habitScenesJson`) setzen
+- `getHabits` für vorhandene Namen nutzen
+
+---
+
+## 6) Guard blocked
+### Symptom
+`EGUARDFAILED` / `ETHRESHOLD` / `EDURATIONLIMIT` / `ECOOLDOWN` und Eintrag in `safety.lastGuardBlock`
+
+### Ursache
+Objekt-Regel (AND/OR/XOR) nicht erfüllt, Schwellwert (z. B. PV-Watt) zu niedrig oder Einschaltdauer überschritten.
+
+### Fix
+- Fehlende Ventile/Bedingungen öffnen oder im selben Plan mitschalten
+- Tab **Regeln** prüfen
+- Dry-Run: `{ "action": "checkGuards", "id": "...", "value": true }`
+
+---
+
+## 7) Timeout
 ### Symptom
 `ETIMEOUT`
 

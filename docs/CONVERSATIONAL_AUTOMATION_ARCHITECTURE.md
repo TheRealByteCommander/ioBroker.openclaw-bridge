@@ -88,9 +88,23 @@ Jede Response ist strukturiert:
 - Policy-Driven Runtime über `native` Config
 - explizite Erweiterungspunkte (`buildIntentPlan`, `executePlan`)
 
+## Habit Learning (implementiert)
+
+1. **Observe:** `recordObservation`, Command-Writes und optionale `habitWatchPrefixes` füllen `habits.observations`.
+2. **Mine:** zeitliche Cluster (Wochentag + Slot) und benannte Habits (`bedtime`, `morning`, `arrive_home`, …).
+3. **Gate:** `observe` → `suggest` (optional auto) → `autonomous` nur mit Confirmation und erfüllten Schwellen.
+4. **Act:** `optimizeHome` / `applyHabit` schreiben gelernte Zielzustände, inkl. PV-Overlay, Cooldown gegen manuelle Overrides und Mindestintervall gegen Flattern.
+
+## Rahmenbedingungen (Operating Envelope)
+
+Operatoren setzen ACL, AND/OR/XOR, Schwellwerte und Einschaltdauer. OpenClaw bewegt sich **nur in diesem Korridor**:
+
+- `getConstraints` liefert die aktuelle Envelope inkl. ob ein Turn-on jetzt erlaubt wäre
+- `planWithinBounds` teilt Agent-Pläne in `allowed` / `blocked` + Handlungs-Hints
+- `optimizeHome` / `applyHabit` / `handleIntent` führen ausschließlich `allowed` aus; Gesperrtes steht in `blocked[]` mit Hint
+
 ## Erweiterungen (Roadmap)
 
 - Rollen-/Benutzer-basierte Freigaben
 - 2-Faktor Confirmation Tokens
 - Zeitfenster-Policies (z. B. nachts keine lauten Geräte)
-- Lernende Habit-Profile via externer Event-Sink

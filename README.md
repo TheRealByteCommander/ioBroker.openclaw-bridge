@@ -7,9 +7,10 @@ Produktionsnahe Interface-Schicht zwischen OpenClaw (Conversational Agent) und i
 - **Stack:** Node.js (CommonJS), ioBroker Adapter Core (`@iobroker/adapter-core`), Node Test Runner (`node --test`)
 - **Adapter-Typ:** Daemon/Misc-Data
 - **Kernmodule:**
-  - `main.js` – ioBroker Adapter Lifecycle
-  - `lib/bridge.js` – Command Gateway, ACL, Safety, Intent/Context/PV-Logik
-  - `test/bridge.test.js` – Unit-/Logiktests
+    - `main.js` – ioBroker Adapter Lifecycle
+    - `lib/bridge.js` – Command Gateway, ACL, Safety, Intent/Context/PV/Habit-Runtime
+    - `lib/habits.js` – Gewohnheitslernen, Matching, Home-Optimization
+    - `test/bridge.test.js` / `test/habits.test.js` – Unit-/Logiktests
 
 ## 2) OpenClaw ↔ ioBroker Interface
 
@@ -28,7 +29,7 @@ Produktionsnahe Interface-Schicht zwischen OpenClaw (Conversational Agent) und i
 ```json
 {
   "requestId": "optional",
-  "action": "getState | setState | listStates | getStates | ping | help | handleIntent | executePlan | validatePlan | emitContextEvent | getContextEvents | handlePvSurplus"
+  "action": "getState | setState | listStates | getStates | ping | help | handleIntent | executePlan | validatePlan | emitContextEvent | getContextEvents | handlePvSurplus | recordObservation | getHabits | getLearningStatus | setHabitMode | evaluateHabits | suggestAutomation | applyHabit | optimizeHome | checkGuards | getConstraints | planWithinBounds"
 }
 ```
 
@@ -42,6 +43,18 @@ Produktionsnahe Interface-Schicht zwischen OpenClaw (Conversational Agent) und i
 6. **Timeout + strukturierte Fehler**
 
 ## 3) Intent/Context/Habit/PV/Komfort
+
+### Phasenmodell für OpenClaw-Agenten
+
+Der Adapter ist die deterministische Ausführungsschicht. OpenClaw beobachtet, lernt über die Bridge und darf **erst nach der Lernphase** autonom steuern.
+
+| Mode | Bedeutung | Writes |
+|---|---|---|
+| `observe` | Nur lernen (Default) | Keine autonomen Writes, auch nicht über `optimizeHome` |
+| `suggest` | Lernphase erfüllt, Vorschläge bereit | Ausführung nur mit `execute: true` |
+| `autonomous` | Nach Lernphase: steuern und optimieren | `optimizeHome` / `applyHabit` dürfen ausführen |
+
+Lernfortschritt steht in `habits.learningStatus`. Autonomie (`setHabitMode` → `autonomous`) braucht `confirmation: true` und erfüllte Schwellen (`habitMinObservations`, `habitMinDays`, `habitMinConfidence`). Mit `habitAutoPromote=true` wechselt der Adapter selbstständig nur bis `suggest`, nie nach `autonomous`.
 
 ### `handleIntent`
 
@@ -118,6 +131,92 @@ Ermittelt anhand aktueller PV-Leistung, ob ein Überschuss-Modus aktiviert wird.
 ```
 
 Schreibt bool auf `pvSurplusLoadStateId` wenn `watts >= pvSurplusMinWatts`.
+
+### Habit Learning & Home Optimization
+
+OpenClaw-Loop:
+
+1. **Beobachten:** `recordObservation` (oder Command-Writes / optionale `habitWatchPrefixes`)
+2. **Lernen:** Profile aus Uhrzeit, Wochentag und typischen Zielzuständen
+3. **Prüfen:** `getLearningStatus` bis `readyForAutonomy`
+4. **Steuern:** `setHabitMode` → `autonomous`, danach periodisch `optimizeHome`
+
+```json
+{
+  "action": "recordObservation",
+  "trigger": "snapshot",
+  "context": { "type": "habit", "name": "bedtime" },
+  "states": {
+    "0_userdata.0.light.livingroom": false,
+    "0_userdata.0.hvac.livingRoom.targetTemperature": 18
+  }
+}
+```
+
+```json
+{ "action": "getLearningStatus" }
+```
+
+```json
+{ "action": "setHabitMode", "mode": "autonomous", "confirmation": true }
+```
+
+```json
+{ "action": "optimizeHome", "watts": 1800, "confirmation": true }
+```
+
+Weitere Actions: `getHabits`, `suggestAutomation` (Dry-Run), `applyHabit` (`name: "bedtime"`).
+
+`handleIntent` erkennt u. a. *gute Nacht*, *guten Morgen*, *ich bin da*, *ich gehe weg*, *Licht an/aus*. Sobald ein Habit-Profil existiert, ersetzen gelernte Zielwerte die Szenen-Templates.
+
+Persistierte States: `habits.mode`, `habits.observations`, `habits.profiles`, `habits.learningStatus`, `habits.lastSuggestion`, `habits.lastOptimization`.
+
+### Objekt-Regeln (AND / OR / XOR / Einschaltdauer)
+
+Im Admin-Tab **Regeln** können Ziel-Objekten Bedingungen zugewiesen werden. Die Bridge prüft sie vor jedem `setState` / `executePlan` / `optimizeHome`.
+
+Beispiel Brunnenpumpe (OR): Pumpe nur einschalten, wenn mindestens ein Ventil offen ist.
+
+| Feld | Wert |
+|---|---|
+| Ziel-Objekt | `0_userdata.0.pump.well` |
+| Wann | Beim Einschalten |
+| Logik | OR |
+| Bedingungs-IDs | `0_userdata.0.valve.bed1,0_userdata.0.valve.bed2` |
+
+Oder **Bedingungs-Prefix** `0_userdata.0.valve` – dann zählen alle Kind-States.
+
+Beispiel Steckdose 3: **Max. Ein (min) = 60**. Nach 1 Stunde schaltet die Bridge automatisch aus.
+
+### Schwellwerte (z. B. PV-Überschuss)
+
+Zahlen-Schwellwerte stehen direkt in der Regel, ohne JSON.
+
+Beispiel Poolheizung erst ab 4000 W:
+
+| Feld | Wert |
+|---|---|
+| Ziel-Objekt | `0_userdata.0.pool.heater` |
+| Wann | Beim Einschalten |
+| Schwellwert-State | `0_userdata.0.energy.pvSurplusWatts` |
+| Op | `>=` |
+| Schwellwert | `4000` |
+
+Zusätzlich Tab **Geräte** → Tabelle **PV-Überschuss-Lasten**: Last, **Ein ab (W)** = 4000, **Aus unter (W)** = 2500 (Hysterese). `handlePvSurplus` / `optimizeHome` schalten diese Lasten abhängig von `watts` oder vom State `pvPowerStateId`.
+
+AND = alle Bedingungen wahr, XOR = genau eine wahr. Schwellwerte werden **zusätzlich per AND** geprüft. Weitere Vergleiche optional per JSON.
+
+Dry-Run: `{ "action": "checkGuards", "id": "0_userdata.0.pump.well", "value": true }`
+
+Ventil und Pumpe im selben Plan: die Bridge schaltet Bedingungen zuerst, danach das geschützte Objekt.
+
+### Rahmenbedingungen für den OpenClaw-Agenten
+
+Die Regeln sind der **Spielraum**, nicht nur ein nachträglicher Riegel. Der Agent darf darin intelligent steuern und optimieren, nicht darüber hinaus.
+
+1. `getConstraints` – aktuelle Grenzen, Schwellwerte, was jetzt erlaubt ist
+2. `planWithinBounds` – Wunschplan in erlaubt vs. außerhalb teilen, inkl. Hinweisen (Ventil öffnen, auf PV warten)
+3. `optimizeHome` / `applyHabit` / `handleIntent` – nur Operationen **innerhalb** der Grenzen; Gesperrtes steht in `blocked[]` mit Handlungs-Hint
 
 ## 4) Beispiel-Datenfluss (natürlicher Dialog)
 
@@ -197,18 +296,16 @@ Für vollständige Operator-Flows und Troubleshooting siehe:
 ## 6) Setup
 
 1. Adapter installieren/klonen
-2. Instanz `openclaw-bridge.0` starten
-3. Native-Config setzen:
-   - `allowedPrefixes`
-   - `allowedActions`
-   - `criticalStatePrefixes`
-   - `comfortTemperatureStateId`
-   - `pvSurplusLoadStateId`
-4. OpenClaw sendet Requests als JSON in `control.command`
+2. Instanz `openclaw-bridge.0` in der ioBroker-Admin-Oberfläche öffnen
+3. Werte auf der **Einstellungsseite** setzen (Tabs Sicherheit, Geräte, Gewohnheiten, Sprache, Erweitert)
+4. Instanz speichern/starten
+5. OpenClaw sendet Requests als JSON in `control.command`
 
 ## 7) Native-Konfiguration
 
-- `allowedPrefixes` (CSV, default `javascript.0,0_userdata.0`)
+Alle Werte sind auf der **ioBroker-Instanz-Einstellungsseite** (`admin/jsonConfig.json`) editierbar. Die Native-Felder bleiben die Quelle zur Laufzeit:
+
+- `allowedPrefixes` (CSV/Chips, default `javascript.0,0_userdata.0`)
 - `allowedActions` (CSV)
 - `commandTimeoutMs` (default `5000`)
 - `setStateAckAllowed` (default `true`)
@@ -219,6 +316,14 @@ Für vollständige Operator-Flows und Troubleshooting siehe:
 - `contextEventHistoryLimit` (default `50`)
 - `pvSurplusMinWatts` (default `1500`)
 - `pvSurplusLoadStateId` (default `0_userdata.0.energy.pvSurplusMode`)
+- `habitMode` (default `observe`)
+- `habitMinObservations` (default `7`)
+- `habitMinDays` (default `3`)
+- `habitMinConfidence` (default `0.65`)
+- `habitSlotMinutes` (default `30`)
+- `habitAutoPromote` (default `true`, nur bis `suggest`)
+- `habitWatchPrefixes` (CSV, optional passive Beobachtung von Nutzer-Writes)
+- `habitLightStateId` / `habitBedtimeTemperature` / `habitMorningTemperature` / `habitScenesJson`
 
 
 ## 8) UX-orientierte Verbesserungen (2026-03-02)
@@ -247,9 +352,10 @@ Abgedeckt:
 - ACL/Action-Whitelist
 - Timeout/Fehlerstruktur
 - Request-Korrelation
-- Intent-Mapping („mir ist kalt“)
+- Intent-Mapping („mir ist kalt“, „gute Nacht“)
 - Safety-Confirmation für kritische Aktionen
 - PV-Überschuss-Trigger
+- Habit-Lernen, Lernstatus, Autonomy-Gate und `optimizeHome`
 
 ## 10) Referenz-API für OpenClaw-Integration
 
@@ -261,12 +367,14 @@ Empfohlenes OpenClaw Tooling-Schema:
   "input": {
     "requestId": "uuid",
     "action": "handleIntent",
-    "text": "mir ist kalt",
+    "text": "gute nacht",
     "execute": true,
     "confirmation": true
   }
 }
 ```
+
+Agent-Pflichttools: `recordObservation`, `getLearningStatus`, `setHabitMode`, `optimizeHome`, plus `handleIntent` für Dialog.
 
 Polling/Antwort:
 
