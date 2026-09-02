@@ -188,7 +188,23 @@ Oder **Bedingungs-Prefix** `0_userdata.0.valve` – dann zählen alle Kind-State
 
 Beispiel Steckdose 3: **Max. Ein (min) = 60**. Nach 1 Stunde schaltet die Bridge automatisch aus.
 
-AND = alle Bedingungen wahr, XOR = genau eine wahr. Erweiterte Vergleiche über JSON, z. B. `[{"id":"0_userdata.0.tank.level","op":"gte","value":20}]`.
+### Schwellwerte (z. B. PV-Überschuss)
+
+Zahlen-Schwellwerte stehen direkt in der Regel, ohne JSON.
+
+Beispiel Poolheizung erst ab 4000 W:
+
+| Feld | Wert |
+|---|---|
+| Ziel-Objekt | `0_userdata.0.pool.heater` |
+| Wann | Beim Einschalten |
+| Schwellwert-State | `0_userdata.0.energy.pvSurplusWatts` |
+| Op | `>=` |
+| Schwellwert | `4000` |
+
+Zusätzlich Tab **Geräte** → Tabelle **PV-Überschuss-Lasten**: Last, **Ein ab (W)** = 4000, **Aus unter (W)** = 2500 (Hysterese). `handlePvSurplus` / `optimizeHome` schalten diese Lasten abhängig von `watts` oder vom State `pvPowerStateId`.
+
+AND = alle Bedingungen wahr, XOR = genau eine wahr. Schwellwerte werden **zusätzlich per AND** geprüft. Weitere Vergleiche optional per JSON.
 
 Dry-Run: `{ "action": "checkGuards", "id": "0_userdata.0.pump.well", "value": true }`
 

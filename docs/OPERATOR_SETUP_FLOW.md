@@ -25,6 +25,7 @@ Schneller, sicherer Start ohne trial-and-error.
 - `EIDFORBIDDEN` → State-ID/Prefix korrigieren
 - `ECONFIRMREQUIRED` → Kommando mit `confirmation: true` erneut senden
 - `EGUARDFAILED` → AND/OR/XOR-Bedingungen erfüllen oder im selben Plan mitschalten
+- `ETHRESHOLD` → Schwellwert noch nicht erreicht (z. B. PV < 4000 W)
 - `EDURATIONLIMIT` → Objekt ist länger eingeschaltet als `Max. Ein`
 - `ECOOLDOWN` → `Min. Aus` abwarten
 - `ETIMEOUT` → Last/Timeout prüfen

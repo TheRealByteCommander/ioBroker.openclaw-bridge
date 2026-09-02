@@ -107,8 +107,8 @@
         "_rulesIntro": {
           "type": "staticText",
           "text": {
-            "en": "Assign AND / OR / XOR conditions and duration limits to objects. Example: the well pump may turn on only if at least one valve is open (OR). Example: socket 3 may stay on for 1 hour maximum.",
-            "de": "Objekten AND-/OR-/XOR-Bedingungen und Zeitlimits zuweisen. Beispiel: Die Brunnenpumpe darf nur einschalten, wenn mindestens ein Ventil offen ist (OR). Beispiel: Steckdose 3 darf maximal 1 Stunde eingeschaltet bleiben."
+            "en": "Assign AND / OR / XOR conditions, numeric thresholds and duration limits to objects. Example: well pump only with an open valve (OR). Example: pool heating only when PV surplus is at least 4000 W. Example: socket 3 max 1 hour on.",
+            "de": "Objekten AND-/OR-/XOR-Bedingungen, Zahlen-Schwellwerte und Zeitlimits zuweisen. Beispiel: Brunnenpumpe nur bei offenem Ventil (OR). Beispiel: Poolheizung erst ab 4000 W PV-Überschuss. Beispiel: Steckdose 3 max. 1 Stunde ein."
           },
           "xs": 12
         },
@@ -194,10 +194,47 @@
               "attr": "conditionsJson",
               "title": { "en": "Advanced conditions JSON", "de": "Erweiterte Bedingungen JSON" },
               "help": {
-                "en": "Optional compares, e.g. [{\"id\":\"0_userdata.0.tank.level\",\"op\":\"gte\",\"value\":20}]",
-                "de": "Optionale Vergleiche, z. B. [{\"id\":\"0_userdata.0.tank.level\",\"op\":\"gte\",\"value\":20}]"
+                "en": "Optional extra compares, e.g. [{\"id\":\"0_userdata.0.tank.level\",\"op\":\"gte\",\"value\":20}]",
+                "de": "Weitere Vergleiche, z. B. [{\"id\":\"0_userdata.0.tank.level\",\"op\":\"gte\",\"value\":20}]"
               },
-              "width": "240px"
+              "width": "200px"
+            },
+            {
+              "type": "objectId",
+              "attr": "thresholdId",
+              "title": { "en": "Threshold state", "de": "Schwellwert-State" },
+              "help": {
+                "en": "e.g. PV surplus watts",
+                "de": "z. B. PV-Überschuss in Watt"
+              },
+              "width": "200px"
+            },
+            {
+              "type": "select",
+              "attr": "thresholdOp",
+              "title": { "en": "Op", "de": "Op" },
+              "default": "gte",
+              "width": "90px",
+              "options": [
+                { "value": "gte", "label": ">=" },
+                { "value": "gt", "label": ">" },
+                { "value": "lte", "label": "<=" },
+                { "value": "lt", "label": "<" },
+                { "value": "eq", "label": "=" }
+              ]
+            },
+            {
+              "type": "number",
+              "attr": "thresholdValue",
+              "title": { "en": "Threshold value", "de": "Schwellwert" },
+              "help": {
+                "en": "Pool heating example: 4000",
+                "de": "Beispiel Poolheizung: 4000"
+              },
+              "min": -1000000,
+              "max": 10000000,
+              "step": 1,
+              "width": "110px"
             },
             {
               "type": "number",
@@ -341,16 +378,113 @@
           "max": 100000,
           "step": 50,
           "label": {
-            "en": "PV surplus threshold",
-            "de": "PV-Überschuss-Schwelle"
+            "en": "Default PV surplus threshold",
+            "de": "Standard-PV-Überschuss-Schwelle"
           },
           "help": {
-            "en": "Watts at or above which surplus mode is enabled",
-            "de": "Watt, ab denen der Überschussmodus aktiviert wird"
+            "en": "Used for the default surplus load if the table below is empty",
+            "de": "Gilt für die Standard-Überschusslast, wenn die Tabelle unten leer ist"
           },
           "xs": 12,
           "sm": 12,
           "md": 4
+        },
+        "pvPowerStateId": {
+          "newLine": true,
+          "type": "objectId",
+          "label": {
+            "en": "PV surplus power state (W)",
+            "de": "PV-Überschuss-Leistungsstate (W)"
+          },
+          "help": {
+            "en": "Current surplus in watts. Used when handlePvSurplus / optimizeHome is called without watts.",
+            "de": "Aktueller Überschuss in Watt. Wird genutzt, wenn handlePvSurplus / optimizeHome ohne watts aufgerufen wird."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "_surplusHeader": {
+          "newLine": true,
+          "type": "header",
+          "text": {
+            "en": "Surplus loads by threshold",
+            "de": "Überschuss-Lasten nach Schwellwert"
+          },
+          "size": 3,
+          "xs": 12
+        },
+        "_surplusHelp": {
+          "type": "staticText",
+          "text": {
+            "en": "Each row is switched when PV surplus reaches min watts. Example: pool heating, min 4000 W. Off-below is hysteresis (stay on until surplus falls below that value).",
+            "de": "Jede Zeile wird eingeschaltet, sobald der PV-Überschuss die Mindest-Watt erreicht. Beispiel: Poolheizung, min. 4000 W. Aus-unter ist die Hysterese (bleibt an, bis der Überschuss darunter fällt)."
+          },
+          "xs": 12
+        },
+        "surplusLoads": {
+          "type": "table",
+          "label": {
+            "en": "PV surplus loads",
+            "de": "PV-Überschuss-Lasten"
+          },
+          "xs": 12,
+          "items": [
+            {
+              "type": "checkbox",
+              "attr": "enabled",
+              "title": { "en": "On", "de": "An" },
+              "default": true,
+              "width": "50px"
+            },
+            {
+              "type": "text",
+              "attr": "name",
+              "title": { "en": "Name", "de": "Name" },
+              "default": "Poolheizung",
+              "width": "140px"
+            },
+            {
+              "type": "objectId",
+              "attr": "targetId",
+              "title": { "en": "Load / device", "de": "Last / Gerät" },
+              "width": "220px"
+            },
+            {
+              "type": "number",
+              "attr": "minWatts",
+              "title": { "en": "On at (W)", "de": "Ein ab (W)" },
+              "min": 0,
+              "max": 100000,
+              "step": 50,
+              "default": 4000,
+              "width": "110px"
+            },
+            {
+              "type": "number",
+              "attr": "offBelowWatts",
+              "title": { "en": "Off below (W)", "de": "Aus unter (W)" },
+              "min": 0,
+              "max": 100000,
+              "step": 50,
+              "default": 2500,
+              "width": "120px"
+            },
+            {
+              "type": "number",
+              "attr": "priority",
+              "title": { "en": "Priority", "de": "Priorität" },
+              "help": {
+                "en": "Lower number first",
+                "de": "Niedrigere Zahl zuerst"
+              },
+              "min": 1,
+              "max": 1000,
+              "step": 1,
+              "default": 100,
+              "width": "90px"
+            }
+          ]
         }
       }
     },

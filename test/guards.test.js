@@ -249,3 +249,87 @@ test('socket max-on timer writes off after the limit', async () => {
   await new Promise((resolve) => setTimeout(resolve, 40));
   assert.equal(adapter.foreignStates.get(id).val, false);
 });
+
+const poolRule = {
+  enabled: true,
+  name: 'poolheizung',
+  targetId: '0_userdata.0.pool.heater',
+  when: 'turn_on',
+  combinator: 'or',
+  thresholdId: '0_userdata.0.energy.pvSurplusWatts',
+  thresholdOp: 'gte',
+  thresholdValue: 4000,
+};
+
+test('threshold blocks pool heating below 4000 W PV surplus', () => {
+  const rules = parseGuardRules([poolRule]);
+  const blocked = evaluateWrite(
+    { id: '0_userdata.0.pool.heater', value: true },
+    rules,
+    { getValue: overlayGetValue({ '0_userdata.0.energy.pvSurplusWatts': 1800 }, {}) },
+  );
+  assert.equal(blocked.ok, false);
+  assert.equal(blocked.code, 'ETHRESHOLD');
+
+  const allowed = evaluateWrite(
+    { id: '0_userdata.0.pool.heater', value: true },
+    rules,
+    { getValue: overlayGetValue({ '0_userdata.0.energy.pvSurplusWatts': 4200 }, {}) },
+  );
+  assert.equal(allowed.ok, true);
+});
+
+test('handlePvSurplus activates pool heating only from 4000 W', async () => {
+  const adapter = new MockAdapter();
+  adapter.foreignStates.set('0_userdata.0.pool.heater', { val: false, ack: true });
+  adapter.foreignStates.set('0_userdata.0.energy.pvSurplusMode', { val: false, ack: true });
+  const bridge = new BridgeRuntime(adapter, {
+    allowedPrefixes: '0_userdata.0',
+    allowedActions: 'handlePvSurplus',
+    habitLearnFromCommands: false,
+    surplusLoads: [{
+      enabled: true,
+      name: 'Poolheizung',
+      targetId: '0_userdata.0.pool.heater',
+      minWatts: 4000,
+      offBelowWatts: 2500,
+      priority: 1,
+    }],
+  });
+
+  const low = await bridge.processCommand({ action: 'handlePvSurplus', watts: 1800, confirmation: true });
+  assert.equal(low.ok, true);
+  assert.equal(adapter.foreignStates.get('0_userdata.0.pool.heater').val, false);
+
+  const high = await bridge.processCommand({ action: 'handlePvSurplus', watts: 4100, confirmation: true });
+  assert.equal(high.ok, true);
+  assert.equal(adapter.foreignStates.get('0_userdata.0.pool.heater').val, true);
+
+  const hysteresis = await bridge.processCommand({ action: 'handlePvSurplus', watts: 3000, confirmation: true });
+  assert.equal(hysteresis.ok, true);
+  assert.equal(adapter.foreignStates.get('0_userdata.0.pool.heater').val, true);
+
+  const off = await bridge.processCommand({ action: 'handlePvSurplus', watts: 2000, confirmation: true });
+  assert.equal(off.ok, true);
+  assert.equal(adapter.foreignStates.get('0_userdata.0.pool.heater').val, false);
+});
+
+test('setState on pool heater is blocked by the 4000 W guard', async () => {
+  const adapter = new MockAdapter();
+  adapter.foreignStates.set('0_userdata.0.pool.heater', { val: false, ack: true });
+  adapter.foreignStates.set('0_userdata.0.energy.pvSurplusWatts', { val: 1200, ack: true });
+  const bridge = new BridgeRuntime(adapter, {
+    allowedPrefixes: '0_userdata.0',
+    allowedActions: 'setState',
+    habitLearnFromCommands: false,
+    guardRules: [poolRule],
+  });
+  const response = await bridge.processCommand({
+    action: 'setState',
+    id: '0_userdata.0.pool.heater',
+    value: true,
+  });
+  assert.equal(response.ok, false);
+  assert.equal(response.error.code, 'ETHRESHOLD');
+  assert.equal(adapter.foreignStates.get('0_userdata.0.pool.heater').val, false);
+});
