@@ -1,5 +1,9 @@
 # Engineering Audit (2026-03-02)
 
+> Historischer Snapshot. Batch/Telemetrie/Retry sind in 0.12.0 enthalten. Aktueller Stand: [README.md](README.md).
+
+## Architecture / Security / Reliability Findings
+
 ## Architecture / Security / Reliability Findings
 1. Action routing lacked batch/state-sync primitives (operational overhead for multi-state updates).
 2. No first-class telemetry action for external monitoring correlation.

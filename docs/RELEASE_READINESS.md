@@ -27,6 +27,8 @@
 - [x] CHANGELOG.md
 - [x] LICENSE (MIT)
 - [x] Negative path tests for oversized batches, guards, thresholds, envelope
+- [x] Documentation matches 0.12.0 (README, actions, configuration, agent contract, operator guides)
+- [x] Docs drift test (`test/docs.test.js`) covers actions, native keys and current version
 
 ## Known risks
 

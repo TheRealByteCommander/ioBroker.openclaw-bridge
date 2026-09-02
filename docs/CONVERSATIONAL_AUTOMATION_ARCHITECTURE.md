@@ -1,110 +1,112 @@
 # Conversational Home Automation Architecture (OpenClaw ↔ ioBroker)
 
+Stand: Adapter **0.12.0**. Operator-Einstieg: [../README.md](../README.md). Agent-Vertrag: [OPENCLAW_AGENT.md](OPENCLAW_AGENT.md).
+
 ## Zielbild
 
-Diese Bridge bildet eine sichere Übersetzungsschicht zwischen natürlicher Sprache (OpenClaw) und deterministischen ioBroker-Operationen (States/Objekte).
+Die Bridge ist eine sichere Übersetzungsschicht zwischen natürlicher Sprache (OpenClaw) und deterministischen ioBroker-Writes. Der Operator setzt die **Rahmenbedingungen**; der Agent plant und steuert nur in diesem Korridor.
 
 ## Komponenten
 
-1. **OpenClaw NLU/Dialogue Layer**
-   - erkennt Intents, Follow-up Fragen, Dialogkontext
-2. **Bridge Adapter (`openclaw-bridge`)**
-   - nimmt JSON-Commands entgegen
-   - setzt ACL/Sicherheitsregeln durch
-   - mappt Komfort-/Habit-/Energy-Intents auf konkrete Operationen
-3. **ioBroker Runtime**
-   - führt State-Änderungen aus
-   - triggert bestehende Skripte/Adapter (z. B. Szenen, Zigbee, Shelly)
+1. **OpenClaw** — Dialog, Intents, periodische Optimierung
+2. **openclaw-bridge** — JSON-Commands, ACL, Guards, Envelope, Habit-Mining
+3. **ioBroker** — States, bestehende Adapter (Zigbee, Shelly, Alexa, …)
+
+```text
+User-Sprache
+    → OpenClaw
+        → control.command (JSON)
+            → BridgeRuntime
+                → Prefix-ACL / Action-Whitelist
+                → Confirmation (kritische Prefixe)
+                → Guards (AND/OR/XOR, Schwellwert, max-on)
+                → allowed Writes
+            → ioBroker States
+        ← responses.<requestId> + hint bei Sperre
+```
 
 ## Datenflüsse
 
-### A) Lesen/Schreiben
+### A) Lesen / Schreiben
 
-- `getState`, `getStates`, `listStates`, `setState`
-- harte Präfix-ACL (`allowedPrefixes`) schützt vor Seiteneffekten außerhalb erlaubter Bereiche
+`getState`, `getStates`, `listStates`, `setState`, `batchSetStates`, `syncSnapshot` — hart begrenzt durch `allowedPrefixes`.
 
 ### B) Conversational Intent
 
-- `handleIntent` erzeugt **Planobjekt**:
-  - `operations[]` (deterministische Aktionen)
-  - `contextEvents[]` (Habit-/Kontextsignale)
-- optional direkte Ausführung (`execute=true`)
+`handleIntent` erzeugt einen Plan (`operations[]`, `contextEvents[]`) und splittet ihn über die Envelope. `execute: true` schreibt nur `allowed`. Gelernte Habit-Ziele ersetzen Szenen-Templates, sobald genug Beobachtungen da sind.
 
 ### C) Safety-Gate
 
-- `executePlan` bewertet jede Operation:
-  - allowed prefix?
-  - critical prefix?
-  - confirmation vorhanden?
-- bei fehlender Bestätigung:
-  - kein Write
-  - Eintrag in `safety.pendingConfirmation`
-  - Fehlercode `ECONFIRMREQUIRED`
+Jede Write-Operation durchläuft:
 
-### D) PV-Überschuss
+1. erlaubter Prefix?
+2. kritisches Prefix → `confirmation: true` sonst `ECONFIRMREQUIRED` / `safety.pendingConfirmation`
+3. Objekt-Regeln (AND/OR/XOR, Schwellwert, Dauer) → sonst `EGUARDFAILED` / `ETHRESHOLD` / `EDURATIONLIMIT` / `ECOOLDOWN` plus `hint`
+4. Ack-Policy
 
-- `handlePvSurplus(watts)`
-- vergleicht mit `pvSurplusMinWatts`
-- schaltet `pvSurplusLoadStateId` auf true/false
-- erzeugt Event `pv_surplus_evaluated`
+`validatePlan` und `checkGuards` sind Dry-Runs desselben Pfads.
 
-## Intent-Beispiele als natürlicher Dialog
+### D) Rahmenbedingungen (Envelope)
 
-### Beispiel 1: Komfort
+- `getConstraints` — aktuelle Envelope, `currentlyAllowsTurnOn`, PV-Lasten
+- `planWithinBounds` — `allowed` / `blocked` + Handlungs-Hints
+- `optimizeHome` / `applyHabit` / `handleIntent` führen ausschließlich `allowed` aus
+
+Der Agent bekommt z. B. `wait_for_threshold` (Poolheizung, Defizit in Watt) oder `satisfy_any` plus `companions` (Ventil öffnen).
+
+### E) PV-Überschuss
+
+- Tabelle `surplusLoads`: Ein ab Watt, Aus unter Watt (Hysterese)
+- `handlePvSurplus` / `optimizeHome` schalten diese Lasten
+- Leere Tabelle: Fallback `pvSurplusLoadStateId` + `pvSurplusMinWatts`
+- Ist-Leistung: Payload `watts` oder State `pvPowerStateId`
+- Schwellwert-Regeln blockieren manuelles Einschalten unter der Grenze unabhängig vom Surplus-Scheduler
+
+### F) Habit Learning
+
+1. **Observe:** `recordObservation`, Command-Writes, optionale `habitWatchPrefixes`
+2. **Mine:** zeitliche Cluster und benannte Habits (`bedtime`, `morning`, `arrive_home`, …)
+3. **Gate:** `observe` → `suggest` (optional auto) → `autonomous` nur mit Confirmation und Schwellen
+4. **Act:** `optimizeHome` schreibt gelernte Ziele, PV-Overlay, Cooldown gegen manuelle Overrides — immer Envelope-gefiltert
+
+## Intent-Beispiele
+
+### Komfort
 
 - User: „Mir ist kalt.“
-- OpenClaw: sendet `handleIntent`
-- Bridge: plant `setState(comfortTemperatureStateId, +1°C)` + Event `user_feels_cold`
-- Optional: direkte Ausführung
+- Bridge: `comfortTemperatureStateId + comfortTempStep`, Event `user_feels_cold`
 
-### Beispiel 2: Kritische Aktion
+### Interlock
 
-- User: „Schalte den Adapter admin aus.“
-- Plan enthält `system.*` Ziel
-- Bridge fordert Bestätigung (`ECONFIRMREQUIRED`)
-- OpenClaw fragt nach: „Das ist kritisch. Wirklich ausführen?“
+- User: „Brunnenpumpe an.“
+- Ohne offenes Ventil: `blocked` / `EGUARDFAILED`, Hint `satisfy_any` mit Companion-Ventil
+- Ventil und Pumpe im selben Plan: Reihenfolge wird so sortiert, dass die Bedingung zuerst wahr wird
 
-### Beispiel 3: PV-Überschuss
+### PV
 
-- Sensor meldet 2200 W
-- OpenClaw oder Automationslogik ruft `handlePvSurplus`
-- Bridge aktiviert Überschuss-Last (z. B. Warmwasser-Boost)
+- 1200 W: Poolheizung bleibt aus (`wait_for_threshold`, `deficit`)
+- 4100 W: `handlePvSurplus` / `optimizeHome` dürfen die Last einschalten, sofern keine andere Regel greift
 
-## Fehler- und Response-Modell
+### Kritisch
 
-Jede Response ist strukturiert:
+- Ziel unter `system.` / `admin.0`: `ECONFIRMREQUIRED`, OpenClaw fragt nach
 
-- `ok`
-- `requestId`
-- `action`
-- `data` oder `error` (`code`, `message`, `details`)
+## Response-Modell
+
+- `ok`, `requestId`, `action`
+- `data` oder `error` (`code`, `message`, `details`, `nextAction`, `hint`)
 - `durationMs`
 
-## Betriebsreife / Production-Readiness
+## Betriebsreife
 
-- korrelierte Antworten pro Request
-- Timeouts gegen hängende Operationen
-- Audit-Zähler (`info.*`)
-- Policy-Driven Runtime über `native` Config
-- explizite Erweiterungspunkte (`buildIntentPlan`, `executePlan`)
+- Korrelierte Antworten, Timeouts, Retry/Backoff, Queue-High-Watermark
+- Audit `info.*`, Telemetrie-Action `getTelemetry`
+- Policy über Native/jsonConfig, nicht über Code-Änderungen
+- Tests: ACL, Intents, Habits, Guards, Schwellwerte, Envelope (`npm test`)
 
-## Habit Learning (implementiert)
+## Roadmap (nicht in 0.12.0)
 
-1. **Observe:** `recordObservation`, Command-Writes und optionale `habitWatchPrefixes` füllen `habits.observations`.
-2. **Mine:** zeitliche Cluster (Wochentag + Slot) und benannte Habits (`bedtime`, `morning`, `arrive_home`, …).
-3. **Gate:** `observe` → `suggest` (optional auto) → `autonomous` nur mit Confirmation und erfüllten Schwellen.
-4. **Act:** `optimizeHome` / `applyHabit` schreiben gelernte Zielzustände, inkl. PV-Overlay, Cooldown gegen manuelle Overrides und Mindestintervall gegen Flattern.
-
-## Rahmenbedingungen (Operating Envelope)
-
-Operatoren setzen ACL, AND/OR/XOR, Schwellwerte und Einschaltdauer. OpenClaw bewegt sich **nur in diesem Korridor**:
-
-- `getConstraints` liefert die aktuelle Envelope inkl. ob ein Turn-on jetzt erlaubt wäre
-- `planWithinBounds` teilt Agent-Pläne in `allowed` / `blocked` + Handlungs-Hints
-- `optimizeHome` / `applyHabit` / `handleIntent` führen ausschließlich `allowed` aus; Gesperrtes steht in `blocked[]` mit Hint
-
-## Erweiterungen (Roadmap)
-
-- Rollen-/Benutzer-basierte Freigaben
+- Rollen-/Benutzer-Freigaben
 - 2-Faktor Confirmation Tokens
 - Zeitfenster-Policies (z. B. nachts keine lauten Geräte)
+- Persistente Telemetrie über Adapter-Neustart

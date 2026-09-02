@@ -1,37 +1,67 @@
 # Operator Setup Flow (ioBroker OpenClaw Bridge)
 
+Stand: **0.12.0**. Feldliste: [CONFIGURATION.md](CONFIGURATION.md). Agent-Vertrag: [OPENCLAW_AGENT.md](OPENCLAW_AGENT.md).
+
 ## Ziel
-Schneller, sicherer Start ohne trial-and-error.
+
+Schneller, sicherer Start über die **ioBroker-Einstellungsseite** (Tabs), ohne Native-JSON von Hand zu editieren.
 
 ## 1) 5-Minuten-Setup
-1. Adapter starten (`openclaw-bridge.0`).
-2. Instanz-Einstellungsseite öffnen und nur die wirklich benötigten Prefixe unter **Erlaubte Prefixe** setzen.
-3. Kritische Prefixe unter **Sicherheit** prüfen.
-4. Smoke-Command senden:
-   - `{ "action": "ping" }`
-5. Hilfe abrufen:
-   - `{ "action": "help" }`
-6. Lernphase starten (Default `habits.mode=observe`):
-   - `{ "action": "getLearningStatus" }`
-   - Beobachtungen via `recordObservation` oder normale `setState`/`handleIntent`-Writes
 
-## 2) Safe Operation Reihenfolge
-1. Erst `validatePlan`
-2. Dann (wenn nötig) `executePlan`
-3. Bei kritischer Aktion immer `confirmation: true`
+1. Adapter starten (`openclaw-bridge.0`).
+2. Instanz öffnen:
+   - **Sicherheit:** nur benötigte Prefixe und Actions.
+   - **Regeln:** Interlocks und Schwellwerte (Pumpe/Ventil, Pool ab 4000 W, Steckdose max. 1 h).
+   - **Geräte:** Komfort-Temperatur, `pvPowerStateId`, PV-Lasten-Tabelle.
+   - **Gewohnheiten:** Mode `observe` lassen, bis genug Daten da sind.
+   - **Sprache / Erweitert:** nur bei Bedarf.
+3. Speichern, Instanz läuft.
+4. Smoke-Commands nach `control.command`:
+
+```json
+{ "action": "ping" }
+```
+
+```json
+{ "action": "help" }
+```
+
+```json
+{ "action": "getConstraints" }
+```
+
+5. Lernen: `{ "action": "getLearningStatus" }` und Beobachtungen via `recordObservation` oder normale Writes.
+
+## 2) Sichere Reihenfolge
+
+1. `getConstraints` — was ist *jetzt* erlaubt?
+2. `validatePlan` oder `planWithinBounds` — Dry-Run
+3. `executePlan` / `handleIntent` mit `execute: true` nur für `allowed`
+4. Kritische Prefixe immer mit `confirmation: true`
 
 ## 3) Fehlerszenario-Entscheidung
-- `EACTIONFORBIDDEN` → Action korrigieren oder `allowedActions` anpassen
-- `EIDFORBIDDEN` → State-ID/Prefix korrigieren
-- `ECONFIRMREQUIRED` → Kommando mit `confirmation: true` erneut senden
-- `EGUARDFAILED` → AND/OR/XOR-Bedingungen erfüllen oder im selben Plan mitschalten
-- `ETHRESHOLD` → Schwellwert noch nicht erreicht (z. B. PV < 4000 W)
-- `EDURATIONLIMIT` → Objekt ist länger eingeschaltet als `Max. Ein`
-- `ECOOLDOWN` → `Min. Aus` abwarten
-- `ETIMEOUT` → Last/Timeout prüfen
+
+| Code | Nächster Schritt |
+|---|---|
+| `EACTIONFORBIDDEN` | Action korrigieren oder `allowedActions` |
+| `EIDFORBIDDEN` | State-ID/Prefix |
+| `ECONFIRMREQUIRED` | Mit `confirmation: true` erneut |
+| `EGUARDFAILED` | Bedingungen erfüllen oder Companion aus `hint.companions` in denselben Plan |
+| `ETHRESHOLD` | Warten (`hint.deficit`) oder Schwellwert prüfen |
+| `EDURATIONLIMIT` | Ausschalten oder `Max. Ein` erhöhen |
+| `ECOOLDOWN` | `Min. Aus` abwarten |
+| `ENOTREADY` | Weiter beobachten, `getLearningStatus` |
+| `EHABITNOTFOUND` | Namen aus `getHabits` oder Szene setzen |
+| `EQUEUEFULL` | Später retry |
+| `EBATCHLIMIT` | Batch verkleinern |
+| `ETIMEOUT` | Last / `commandTimeoutMs` |
+
+Vollständig: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ## 4) Operator-Kurzbefehle
-- Readiness: `ping`
-- Schema-Hilfe: `help`
-- Dry-run Sicherheit: `validatePlan`
 
+- Readiness: `ping`
+- Schema: `help`
+- Envelope: `getConstraints`
+- Dry-Run Regeln: `checkGuards` / `planWithinBounds`
+- Dry-Run Plan: `validatePlan`

@@ -1,5 +1,9 @@
 # Competitive Upgrade – 2026-02-24 (ioBroker OpenClaw Bridge)
 
+> Historischer Snapshot (`validatePlan`, Event-History). Testzahl `13/13` gilt nur für diesen Stand. Aktuell: Release **0.12.0**, Doku-Index [README.md](README.md).
+
+## Auswahl (Rotation)
+
 ## Auswahl (Rotation)
 - Gewähltes Repo: `ioBroker`
 - Grund: Rotationsindex von `4` (`Stundenzettel_web`) auf `5` weitergedreht.
