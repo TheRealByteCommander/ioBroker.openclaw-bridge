@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "news": {
+      "0.9.0": {
+        "en": "Add habit learning phases and post-learning home automation optimization for OpenClaw agents",
+        "de": "Gewohnheitslernen mit Phasenmodell und anschließender Home-Automation-Optimierung für OpenClaw-Agenten"
+      },
       "0.4.0": {
         "en": "Add validatePlan dry-run checks and bounded context event history with getContextEvents",
         "de": "validatePlan Dry-Run-Prüfung und begrenzte Kontext-Event-Historie mit getContextEvents ergänzt"
@@ -38,7 +42,7 @@
     },
     "desc": {
       "en": "Bridge adapter exposing command and result states for external assistants",
-      "de": "Bridge-Adapter mit Command- und Result-States für externe Assistenten"
+      "de": "Bridge-Adapter mit Command- und Result-States für OpenClaw: Gewohnheiten lernen, danach Home Automation steuern und optimieren"
     },
     "authors": [
       "Byte Commander"
@@ -67,7 +71,7 @@
   },
   "native": {
     "allowedPrefixes": "javascript.0,0_userdata.0,alexa2.0",
-    "allowedActions": "getState,setState,listStates,getStates,ping,help,handleIntent,executePlan,validatePlan,emitContextEvent,getContextEvents,handlePvSurplus,batchSetStates,syncSnapshot,getTelemetry,speak,transcribe,voiceCommand",
+    "allowedActions": "getState,setState,listStates,getStates,ping,help,handleIntent,executePlan,validatePlan,emitContextEvent,getContextEvents,handlePvSurplus,batchSetStates,syncSnapshot,getTelemetry,speak,transcribe,voiceCommand,recordObservation,getHabits,getLearningStatus,setHabitMode,evaluateHabits,suggestAutomation,applyHabit,optimizeHome",
     "commandTimeoutMs": 5000,
     "setStateAckAllowed": true,
     "criticalStatePrefixes": "system.,admin.0",
@@ -84,7 +88,23 @@
     "alexaTtsStateId": "alexa2.0.Echo-Devices.Speak",
     "sttCommand": "faster-whisper",
     "sttModel": "small",
-    "sttLanguage": "de"
+    "sttLanguage": "de",
+    "habitMode": "observe",
+    "habitMinObservations": 7,
+    "habitMinDays": 3,
+    "habitMinConfidence": 0.65,
+    "habitSlotMinutes": 30,
+    "habitMatchSlackMinutes": 30,
+    "habitObservationLimit": 500,
+    "habitOverrideCooldownMs": 7200000,
+    "habitMinApplyIntervalMs": 1800000,
+    "habitAutoPromote": true,
+    "habitLearnFromCommands": true,
+    "habitWatchPrefixes": "",
+    "habitLightStateId": "0_userdata.0.light.livingroom",
+    "habitBedtimeTemperature": 18,
+    "habitMorningTemperature": 21,
+    "habitScenesJson": ""
   },
   "objects": [
     {
@@ -288,6 +308,150 @@
         "read": true,
         "write": false,
         "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.retryCount",
+      "type": "state",
+      "common": {
+        "name": "Retry count",
+        "type": "number",
+        "role": "value",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.queueRejected",
+      "type": "state",
+      "common": {
+        "name": "Queue rejected commands",
+        "type": "number",
+        "role": "value",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.queueDepth",
+      "type": "state",
+      "common": {
+        "name": "Current command queue depth",
+        "type": "number",
+        "role": "value",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.avgDurationMs",
+      "type": "state",
+      "common": {
+        "name": "Average command duration in ms",
+        "type": "number",
+        "role": "value.interval",
+        "unit": "ms",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "habits.mode",
+      "type": "state",
+      "common": {
+        "name": "Habit learning / autonomy mode",
+        "type": "string",
+        "role": "text",
+        "read": true,
+        "write": false,
+        "def": "observe"
+      },
+      "native": {}
+    },
+    {
+      "_id": "habits.observations",
+      "type": "state",
+      "common": {
+        "name": "Habit observations",
+        "type": "string",
+        "role": "json",
+        "read": true,
+        "write": false,
+        "def": "[]"
+      },
+      "native": {}
+    },
+    {
+      "_id": "habits.profiles",
+      "type": "state",
+      "common": {
+        "name": "Learned habit profiles",
+        "type": "string",
+        "role": "json",
+        "read": true,
+        "write": false,
+        "def": "[]"
+      },
+      "native": {}
+    },
+    {
+      "_id": "habits.learningStatus",
+      "type": "state",
+      "common": {
+        "name": "Habit learning progress",
+        "type": "string",
+        "role": "json",
+        "read": true,
+        "write": false,
+        "def": "{}"
+      },
+      "native": {}
+    },
+    {
+      "_id": "habits.lastSuggestion",
+      "type": "state",
+      "common": {
+        "name": "Last automation suggestion",
+        "type": "string",
+        "role": "json",
+        "read": true,
+        "write": false,
+        "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "habits.lastOptimization",
+      "type": "state",
+      "common": {
+        "name": "Last home optimization",
+        "type": "string",
+        "role": "json",
+        "read": true,
+        "write": false,
+        "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "habits.lastApplied",
+      "type": "state",
+      "common": {
+        "name": "Last applied habit timestamps",
+        "type": "string",
+        "role": "json",
+        "read": true,
+        "write": false,
+        "def": "{}"
       },
       "native": {}
     }

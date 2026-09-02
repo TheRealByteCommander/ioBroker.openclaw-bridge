@@ -19,3 +19,7 @@
 ## Remaining non-blocking items
 - Persist telemetry window across adapter restart (currently in-memory only).
 - Optional external metrics exporter (Prometheus/Influx) for long-term observability.
+
+## Habit / autonomy (0.9.0)
+- Gap closed: context events were signals only; the adapter now mines habit profiles and can optimize home automation after the learning phase.
+- Safety retained: `observe` cannot auto-write, `autonomous` needs confirmation plus readiness gates, ACL/critical prefixes still apply.

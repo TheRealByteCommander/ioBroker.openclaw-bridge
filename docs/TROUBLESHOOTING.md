@@ -33,7 +33,31 @@ State außerhalb `allowedPrefixes`.
 
 ---
 
-## 4) Timeout
+## 4) Learning phase not complete
+### Symptom
+`ENOTREADY` bei `setHabitMode` / `autonomous`
+
+### Ursache
+Zu wenige Beobachtungen, zu wenig Tage oder zu geringe Konfidenz.
+
+### Fix
+- Weiter `recordObservation` / echte Nutzeraktionen sammeln
+- `getLearningStatus` prüfen
+- Schwellen nur bewusst senken (`habitMinObservations`, `habitMinDays`, `habitMinConfidence`)
+
+---
+
+## 5) Habit not found
+### Symptom
+`EHABITNOTFOUND`
+
+### Fix
+- Zuerst lernen oder Szenen-Template (`habitLightStateId` / `habitScenesJson`) setzen
+- `getHabits` für vorhandene Namen nutzen
+
+---
+
+## 6) Timeout
 ### Symptom
 `ETIMEOUT`
 

@@ -7,9 +7,10 @@ Produktionsnahe Interface-Schicht zwischen OpenClaw (Conversational Agent) und i
 - **Stack:** Node.js (CommonJS), ioBroker Adapter Core (`@iobroker/adapter-core`), Node Test Runner (`node --test`)
 - **Adapter-Typ:** Daemon/Misc-Data
 - **Kernmodule:**
-  - `main.js` – ioBroker Adapter Lifecycle
-  - `lib/bridge.js` – Command Gateway, ACL, Safety, Intent/Context/PV-Logik
-  - `test/bridge.test.js` – Unit-/Logiktests
+    - `main.js` – ioBroker Adapter Lifecycle
+    - `lib/bridge.js` – Command Gateway, ACL, Safety, Intent/Context/PV/Habit-Runtime
+    - `lib/habits.js` – Gewohnheitslernen, Matching, Home-Optimization
+    - `test/bridge.test.js` / `test/habits.test.js` – Unit-/Logiktests
 
 ## 2) OpenClaw ↔ ioBroker Interface
 
@@ -28,7 +29,7 @@ Produktionsnahe Interface-Schicht zwischen OpenClaw (Conversational Agent) und i
 ```json
 {
   "requestId": "optional",
-  "action": "getState | setState | listStates | getStates | ping | help | handleIntent | executePlan | validatePlan | emitContextEvent | getContextEvents | handlePvSurplus"
+  "action": "getState | setState | listStates | getStates | ping | help | handleIntent | executePlan | validatePlan | emitContextEvent | getContextEvents | handlePvSurplus | recordObservation | getHabits | getLearningStatus | setHabitMode | evaluateHabits | suggestAutomation | applyHabit | optimizeHome"
 }
 ```
 
@@ -42,6 +43,18 @@ Produktionsnahe Interface-Schicht zwischen OpenClaw (Conversational Agent) und i
 6. **Timeout + strukturierte Fehler**
 
 ## 3) Intent/Context/Habit/PV/Komfort
+
+### Phasenmodell für OpenClaw-Agenten
+
+Der Adapter ist die deterministische Ausführungsschicht. OpenClaw beobachtet, lernt über die Bridge und darf **erst nach der Lernphase** autonom steuern.
+
+| Mode | Bedeutung | Writes |
+|---|---|---|
+| `observe` | Nur lernen (Default) | Keine autonomen Writes, auch nicht über `optimizeHome` |
+| `suggest` | Lernphase erfüllt, Vorschläge bereit | Ausführung nur mit `execute: true` |
+| `autonomous` | Nach Lernphase: steuern und optimieren | `optimizeHome` / `applyHabit` dürfen ausführen |
+
+Lernfortschritt steht in `habits.learningStatus`. Autonomie (`setHabitMode` → `autonomous`) braucht `confirmation: true` und erfüllte Schwellen (`habitMinObservations`, `habitMinDays`, `habitMinConfidence`). Mit `habitAutoPromote=true` wechselt der Adapter selbstständig nur bis `suggest`, nie nach `autonomous`.
 
 ### `handleIntent`
 
@@ -118,6 +131,45 @@ Ermittelt anhand aktueller PV-Leistung, ob ein Überschuss-Modus aktiviert wird.
 ```
 
 Schreibt bool auf `pvSurplusLoadStateId` wenn `watts >= pvSurplusMinWatts`.
+
+### Habit Learning & Home Optimization
+
+OpenClaw-Loop:
+
+1. **Beobachten:** `recordObservation` (oder Command-Writes / optionale `habitWatchPrefixes`)
+2. **Lernen:** Profile aus Uhrzeit, Wochentag und typischen Zielzuständen
+3. **Prüfen:** `getLearningStatus` bis `readyForAutonomy`
+4. **Steuern:** `setHabitMode` → `autonomous`, danach periodisch `optimizeHome`
+
+```json
+{
+  "action": "recordObservation",
+  "trigger": "snapshot",
+  "context": { "type": "habit", "name": "bedtime" },
+  "states": {
+    "0_userdata.0.light.livingroom": false,
+    "0_userdata.0.hvac.livingRoom.targetTemperature": 18
+  }
+}
+```
+
+```json
+{ "action": "getLearningStatus" }
+```
+
+```json
+{ "action": "setHabitMode", "mode": "autonomous", "confirmation": true }
+```
+
+```json
+{ "action": "optimizeHome", "watts": 1800, "confirmation": true }
+```
+
+Weitere Actions: `getHabits`, `suggestAutomation` (Dry-Run), `applyHabit` (`name: "bedtime"`).
+
+`handleIntent` erkennt u. a. *gute Nacht*, *guten Morgen*, *ich bin da*, *ich gehe weg*, *Licht an/aus*. Sobald ein Habit-Profil existiert, ersetzen gelernte Zielwerte die Szenen-Templates.
+
+Persistierte States: `habits.mode`, `habits.observations`, `habits.profiles`, `habits.learningStatus`, `habits.lastSuggestion`, `habits.lastOptimization`.
 
 ## 4) Beispiel-Datenfluss (natürlicher Dialog)
 
@@ -204,6 +256,8 @@ Für vollständige Operator-Flows und Troubleshooting siehe:
    - `criticalStatePrefixes`
    - `comfortTemperatureStateId`
    - `pvSurplusLoadStateId`
+   - `habitMode` (`observe` zum Start)
+   - `habitLightStateId` / `habitWatchPrefixes` nach Bedarf
 4. OpenClaw sendet Requests als JSON in `control.command`
 
 ## 7) Native-Konfiguration
@@ -219,6 +273,14 @@ Für vollständige Operator-Flows und Troubleshooting siehe:
 - `contextEventHistoryLimit` (default `50`)
 - `pvSurplusMinWatts` (default `1500`)
 - `pvSurplusLoadStateId` (default `0_userdata.0.energy.pvSurplusMode`)
+- `habitMode` (default `observe`)
+- `habitMinObservations` (default `7`)
+- `habitMinDays` (default `3`)
+- `habitMinConfidence` (default `0.65`)
+- `habitSlotMinutes` (default `30`)
+- `habitAutoPromote` (default `true`, nur bis `suggest`)
+- `habitWatchPrefixes` (CSV, optional passive Beobachtung von Nutzer-Writes)
+- `habitLightStateId` / `habitBedtimeTemperature` / `habitMorningTemperature` / `habitScenesJson`
 
 
 ## 8) UX-orientierte Verbesserungen (2026-03-02)
@@ -247,9 +309,10 @@ Abgedeckt:
 - ACL/Action-Whitelist
 - Timeout/Fehlerstruktur
 - Request-Korrelation
-- Intent-Mapping („mir ist kalt“)
+- Intent-Mapping („mir ist kalt“, „gute Nacht“)
 - Safety-Confirmation für kritische Aktionen
 - PV-Überschuss-Trigger
+- Habit-Lernen, Lernstatus, Autonomy-Gate und `optimizeHome`
 
 ## 10) Referenz-API für OpenClaw-Integration
 
@@ -261,12 +324,14 @@ Empfohlenes OpenClaw Tooling-Schema:
   "input": {
     "requestId": "uuid",
     "action": "handleIntent",
-    "text": "mir ist kalt",
+    "text": "gute nacht",
     "execute": true,
     "confirmation": true
   }
 }
 ```
+
+Agent-Pflichttools: `recordObservation`, `getLearningStatus`, `setHabitMode`, `optimizeHome`, plus `handleIntent` für Dialog.
 
 Polling/Antwort:
 

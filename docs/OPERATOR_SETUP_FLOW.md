@@ -11,6 +11,9 @@ Schneller, sicherer Start ohne trial-and-error.
    - `{ "action": "ping" }`
 5. Hilfe abrufen:
    - `{ "action": "help" }`
+6. Lernphase starten (Default `habits.mode=observe`):
+   - `{ "action": "getLearningStatus" }`
+   - Beobachtungen via `recordObservation` oder normale `setState`/`handleIntent`-Writes
 
 ## 2) Safe Operation Reihenfolge
 1. Erst `validatePlan`
