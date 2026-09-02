@@ -208,6 +208,8 @@ test('help action returns capabilities', async () => {
   assert.equal(response.ok, true);
   assert.equal(Array.isArray(response.data.allowedActions), true);
   assert.equal(response.data.adapter, 'openclaw-bridge');
+  assert.ok(response.data.envelope.principle.includes('Rahmenbedingungen'));
+  assert.equal(response.data.envelope.actions.includes('getConstraints'), true);
 });
 
 

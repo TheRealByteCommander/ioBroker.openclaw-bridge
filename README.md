@@ -210,6 +210,14 @@ Dry-Run: `{ "action": "checkGuards", "id": "0_userdata.0.pump.well", "value": tr
 
 Ventil und Pumpe im selben Plan: die Bridge schaltet Bedingungen zuerst, danach das geschützte Objekt.
 
+### Rahmenbedingungen für den OpenClaw-Agenten
+
+Die Regeln sind der **Spielraum**, nicht nur ein nachträglicher Riegel. Der Agent darf darin intelligent steuern und optimieren, nicht darüber hinaus.
+
+1. `getConstraints` – aktuelle Grenzen, Schwellwerte, was jetzt erlaubt ist
+2. `planWithinBounds` – Wunschplan in erlaubt vs. außerhalb teilen, inkl. Hinweisen (Ventil öffnen, auf PV warten)
+3. `optimizeHome` / `applyHabit` / `handleIntent` – nur Operationen **innerhalb** der Grenzen; Gesperrtes steht in `blocked[]` mit Handlungs-Hint
+
 ## 4) Beispiel-Datenfluss (natürlicher Dialog)
 
 1. User: **„Mir ist kalt.“**

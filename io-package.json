@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.11.0",
+    "version": "0.12.0",
     "news": {
+      "0.12.0": {
+        "en": "Expose operating envelope so OpenClaw plans and optimizes only within configured constraints",
+        "de": "Rahmenbedingungen für OpenClaw: Agent plant und steuert nur innerhalb der gesetzten Grenzen"
+      },
       "0.11.0": {
         "en": "Add numeric thresholds and per-load PV surplus switching (e.g. pool heating from 4000 W)",
         "de": "Zahlen-Schwellwerte und PV-Überschuss je Last (z. B. Poolheizung ab 4000 W)"
@@ -83,7 +87,7 @@
   },
   "native": {
     "allowedPrefixes": "javascript.0,0_userdata.0,alexa2.0",
-    "allowedActions": "getState,setState,listStates,getStates,ping,help,handleIntent,executePlan,validatePlan,emitContextEvent,getContextEvents,handlePvSurplus,batchSetStates,syncSnapshot,getTelemetry,speak,transcribe,voiceCommand,recordObservation,getHabits,getLearningStatus,setHabitMode,evaluateHabits,suggestAutomation,applyHabit,optimizeHome,checkGuards",
+    "allowedActions": "getState,setState,listStates,getStates,ping,help,handleIntent,executePlan,validatePlan,emitContextEvent,getContextEvents,handlePvSurplus,batchSetStates,syncSnapshot,getTelemetry,speak,transcribe,voiceCommand,recordObservation,getHabits,getLearningStatus,setHabitMode,evaluateHabits,suggestAutomation,applyHabit,optimizeHome,checkGuards,getConstraints,planWithinBounds",
     "commandTimeoutMs": 5000,
     "setStateAckAllowed": true,
     "criticalStatePrefixes": "system.,admin.0",

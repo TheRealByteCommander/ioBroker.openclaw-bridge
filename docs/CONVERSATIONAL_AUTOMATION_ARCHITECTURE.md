@@ -95,6 +95,14 @@ Jede Response ist strukturiert:
 3. **Gate:** `observe` → `suggest` (optional auto) → `autonomous` nur mit Confirmation und erfüllten Schwellen.
 4. **Act:** `optimizeHome` / `applyHabit` schreiben gelernte Zielzustände, inkl. PV-Overlay, Cooldown gegen manuelle Overrides und Mindestintervall gegen Flattern.
 
+## Rahmenbedingungen (Operating Envelope)
+
+Operatoren setzen ACL, AND/OR/XOR, Schwellwerte und Einschaltdauer. OpenClaw bewegt sich **nur in diesem Korridor**:
+
+- `getConstraints` liefert die aktuelle Envelope inkl. ob ein Turn-on jetzt erlaubt wäre
+- `planWithinBounds` teilt Agent-Pläne in `allowed` / `blocked` + Handlungs-Hints
+- `optimizeHome` / `applyHabit` / `handleIntent` führen ausschließlich `allowed` aus; Gesperrtes steht in `blocked[]` mit Hint
+
 ## Erweiterungen (Roadmap)
 
 - Rollen-/Benutzer-basierte Freigaben

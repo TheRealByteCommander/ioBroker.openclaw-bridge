@@ -107,8 +107,8 @@
         "_rulesIntro": {
           "type": "staticText",
           "text": {
-            "en": "Assign AND / OR / XOR conditions, numeric thresholds and duration limits to objects. Example: well pump only with an open valve (OR). Example: pool heating only when PV surplus is at least 4000 W. Example: socket 3 max 1 hour on.",
-            "de": "Objekten AND-/OR-/XOR-Bedingungen, Zahlen-Schwellwerte und Zeitlimits zuweisen. Beispiel: Brunnenpumpe nur bei offenem Ventil (OR). Beispiel: Poolheizung erst ab 4000 W PV-Überschuss. Beispiel: Steckdose 3 max. 1 Stunde ein."
+            "en": "These rules are the operating envelope for the OpenClaw agent. It may optimize freely inside them (AND/OR/XOR, thresholds, max on-time). Writes outside the envelope are rejected.",
+            "de": "Diese Regeln sind die Rahmenbedingungen für den OpenClaw-Agenten. Innerhalb dieser Grenzen darf er intelligent steuern und optimieren (AND/OR/XOR, Schwellwerte, max. Einschaltdauer). Alles außerhalb wird abgelehnt."
           },
           "xs": 12
         },

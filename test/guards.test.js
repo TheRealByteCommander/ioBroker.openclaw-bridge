@@ -165,7 +165,7 @@ function pumpBridge(valves = {}) {
   adapter.foreignStates.set('0_userdata.0.socket.3', { val: false, ack: true });
   const bridge = new BridgeRuntime(adapter, {
     allowedPrefixes: '0_userdata.0',
-    allowedActions: 'setState,executePlan,checkGuards,batchSetStates',
+    allowedActions: 'setState,executePlan,checkGuards,batchSetStates,planWithinBounds,getConstraints',
     habitLearnFromCommands: false,
     guardRules: [pumpRule, socketRule],
   });
@@ -181,6 +181,8 @@ test('setState blocks the well pump without an open valve', async () => {
   });
   assert.equal(response.ok, false);
   assert.equal(response.error.code, 'EGUARDFAILED');
+  assert.equal(response.error.hint.type, 'satisfy_any');
+  assert.equal(response.error.hint.companions[0].id, '0_userdata.0.valve.bed1');
   assert.equal(adapter.foreignStates.get('0_userdata.0.pump.well').val, false);
 });
 
@@ -331,5 +333,69 @@ test('setState on pool heater is blocked by the 4000 W guard', async () => {
   });
   assert.equal(response.ok, false);
   assert.equal(response.error.code, 'ETHRESHOLD');
+  assert.equal(response.error.hint.type, 'wait_for_threshold');
   assert.equal(adapter.foreignStates.get('0_userdata.0.pool.heater').val, false);
+});
+
+test('getConstraints describes the operating envelope for OpenClaw', async () => {
+  const adapter = new MockAdapter();
+  adapter.foreignStates.set('0_userdata.0.pool.heater', { val: false, ack: true });
+  adapter.foreignStates.set('0_userdata.0.energy.pvSurplusWatts', { val: 1200, ack: true });
+  const bridge = new BridgeRuntime(adapter, {
+    allowedPrefixes: '0_userdata.0',
+    allowedActions: 'getConstraints',
+    habitLearnFromCommands: false,
+    guardRules: [poolRule],
+    surplusLoads: [{
+      enabled: true,
+      name: 'Poolheizung',
+      targetId: '0_userdata.0.pool.heater',
+      minWatts: 4000,
+    }],
+  });
+  const response = await bridge.processCommand({ action: 'getConstraints', watts: 1200 });
+  assert.equal(response.ok, true);
+  assert.equal(response.data.role, 'operating_envelope');
+  assert.equal(response.data.rules[0].currentlyAllowsTurnOn, false);
+  assert.equal(response.data.agent.mustNot.length > 0, true);
+});
+
+test('planWithinBounds lets the agent move only inside the envelope', async () => {
+  const adapter = new MockAdapter();
+  adapter.foreignStates.set('0_userdata.0.pool.heater', { val: false, ack: true });
+  adapter.foreignStates.set('0_userdata.0.energy.pvSurplusWatts', { val: 1200, ack: true });
+  adapter.foreignStates.set('0_userdata.0.light.livingroom', { val: false, ack: true });
+  const bridge = new BridgeRuntime(adapter, {
+    allowedPrefixes: '0_userdata.0',
+    allowedActions: 'planWithinBounds',
+    habitLearnFromCommands: false,
+    guardRules: [poolRule],
+    pvPowerStateId: '0_userdata.0.energy.pvSurplusWatts',
+  });
+  const response = await bridge.processCommand({
+    action: 'planWithinBounds',
+    watts: 1200,
+    operations: [
+      { type: 'setState', id: '0_userdata.0.light.livingroom', value: true },
+      { type: 'setState', id: '0_userdata.0.pool.heater', value: true },
+    ],
+  });
+  assert.equal(response.ok, true);
+  assert.equal(response.data.withinBounds, false);
+  assert.equal(response.data.allowed.length, 1);
+  assert.equal(response.data.allowed[0].id, '0_userdata.0.light.livingroom');
+  assert.equal(response.data.blocked[0].hint.type, 'wait_for_threshold');
+  assert.ok(response.data.blocked[0].hint.deficit > 0);
+});
+
+test('planWithinBounds tells the agent how to stay inside AND/OR bounds', async () => {
+  const { bridge } = pumpBridge({ bed1: false, bed2: false });
+  const response = await bridge.processCommand({
+    action: 'planWithinBounds',
+    operations: [{ type: 'setState', id: '0_userdata.0.pump.well', value: true }],
+  });
+  assert.equal(response.ok, true);
+  assert.equal(response.data.withinBounds, false);
+  assert.equal(response.data.blocked[0].hint.type, 'satisfy_any');
+  assert.equal(response.data.blocked[0].hint.companions.some((op) => op.id.includes('valve')), true);
 });
