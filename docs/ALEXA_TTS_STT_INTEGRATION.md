@@ -1,35 +1,45 @@
 # Alexa TTS + Local STT Integration
 
-## Overview
-This adapter now supports an end-to-end voice loop:
-1. Local speech-to-text (`transcribe`)
-2. Intent routing (`handleIntent`)
-3. ioBroker state execution (`executePlan` guarded)
-4. Alexa output (`speak`) via `alexa2` state
+Stand: **0.12.0**. Envelope und Guards gelten auch für Voice-Writes.
 
-## Required ioBroker setup
-- Install/configure `alexa2` adapter.
-- Verify writable speak state, e.g.:
-  - `alexa2.0.<device>.Commands.speak`
+## Überblick
 
-Set in adapter native config:
-- `alexaTtsStateId` → exact speak state id
-- `sttCommand` → local STT command (default: `faster-whisper`)
-- `sttModel` → e.g. `small`
-- `sttLanguage` → e.g. `de`
+End-to-End-Sprachloop:
+
+1. Lokales Speech-to-Text (`transcribe`)
+2. Intent (`handleIntent`) — nur Operationen innerhalb der Rahmenbedingungen
+3. ioBroker-Writes (ACL, Confirmation, Guards)
+4. Alexa-Ausgabe (`speak`) über `alexa2`
+
+## ioBroker-Setup
+
+- `alexa2`-Adapter installieren.
+- Schreibbaren Speak-State prüfen, z. B. `alexa2.0.<device>.Commands.speak`.
+- Tab **Sprache**:
+  - `alexaTtsStateId` — exakte Speak-State-ID
+  - `sttCommand` — lokal, Default `faster-whisper`
+  - `sttModel` — z. B. `small`
+  - `sttLanguage` — z. B. `de`
+- Speak-State-Prefix muss in `allowedPrefixes` liegen (Default enthält `alexa2.0`).
 
 ## Actions
+
 ### `speak`
+
 ```json
 { "action": "speak", "text": "Hallo Matthias" }
 ```
 
 ### `transcribe`
+
 ```json
 { "action": "transcribe", "audioPath": "/tmp/cmd.wav" }
 ```
 
+Ohne `audioPath`: `ESTTEMPTY`. STT-Fehler: `ESTTFAILED`.
+
 ### `voiceCommand`
+
 ```json
 {
   "action": "voiceCommand",
@@ -41,6 +51,12 @@ Set in adapter native config:
 }
 ```
 
-## Security/Guardrails
-- Critical actions still require explicit confirmation (`confirmation: true`).
-- ACL (`allowedPrefixes`) and action whitelist (`allowedActions`) apply as before.
+Ablauf: transcribe → `handleIntent` → Envelope-Filter → optional `speak`.
+
+## Guardrails
+
+- Kritische Prefixe brauchen `confirmation: true`.
+- ACL (`allowedPrefixes`) und `allowedActions` gelten unverändert.
+- Objekt-Regeln und Schwellwerte gelten auch für Voice: eine per Sprache angeforderte Poolheizung unter 4000 W wird blockiert (`ETHRESHOLD` / `wait_for_threshold`).
+
+Operator-Quickstart im [../README.md](../README.md) und [OPERATOR_SETUP_FLOW.md](OPERATOR_SETUP_FLOW.md).

@@ -57,8 +57,8 @@
       "de": "OpenClaw Bridge"
     },
     "desc": {
-      "en": "Bridge adapter exposing command and result states for external assistants",
-      "de": "Bridge-Adapter mit Command- und Result-States für OpenClaw: Gewohnheiten lernen, danach Home Automation steuern und optimieren"
+      "en": "JSON bridge for OpenClaw: learn habits, then control and optimize home automation only within operator-configured constraints",
+      "de": "JSON-Bridge für OpenClaw: Gewohnheiten lernen, danach Home Automation nur innerhalb der gesetzten Rahmenbedingungen steuern und optimieren"
     },
     "authors": [
       "Byte Commander"

@@ -13,6 +13,11 @@ Erstes gebündeltes Release nach 0.8.0: Gewohnheitslernen, Admin-UI, Objekt-Rege
 - `optimizeHome`, `applyHabit` und `handleIntent` führen nur Operationen **innerhalb** der Grenzen aus.
 - Blockierte Writes liefern Handlungs-Hints (`wait_for_threshold`, `satisfy_any`, Ventil öffnen, auf PV warten).
 
+### Dokumentation
+
+- README, Doku-Index, Action-Referenz, Native-Feldliste, Agent-Vertrag und Operator-Guides auf den Release-Stand 0.12.0 gezogen.
+- Drift-Test: Actions und Native-Keys müssen in der Doku vorkommen.
+
 ### Schwellwerte und PV-Lasten (0.11.0)
 
 - Zahlen-Schwellwerte je Objektregel (z. B. Poolheizung erst ab ≥ 4000 W).
