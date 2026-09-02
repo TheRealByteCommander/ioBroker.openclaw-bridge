@@ -249,20 +249,16 @@ Für vollständige Operator-Flows und Troubleshooting siehe:
 ## 6) Setup
 
 1. Adapter installieren/klonen
-2. Instanz `openclaw-bridge.0` starten
-3. Native-Config setzen:
-   - `allowedPrefixes`
-   - `allowedActions`
-   - `criticalStatePrefixes`
-   - `comfortTemperatureStateId`
-   - `pvSurplusLoadStateId`
-   - `habitMode` (`observe` zum Start)
-   - `habitLightStateId` / `habitWatchPrefixes` nach Bedarf
-4. OpenClaw sendet Requests als JSON in `control.command`
+2. Instanz `openclaw-bridge.0` in der ioBroker-Admin-Oberfläche öffnen
+3. Werte auf der **Einstellungsseite** setzen (Tabs Sicherheit, Geräte, Gewohnheiten, Sprache, Erweitert)
+4. Instanz speichern/starten
+5. OpenClaw sendet Requests als JSON in `control.command`
 
 ## 7) Native-Konfiguration
 
-- `allowedPrefixes` (CSV, default `javascript.0,0_userdata.0`)
+Alle Werte sind auf der **ioBroker-Instanz-Einstellungsseite** (`admin/jsonConfig.json`) editierbar. Die Native-Felder bleiben die Quelle zur Laufzeit:
+
+- `allowedPrefixes` (CSV/Chips, default `javascript.0,0_userdata.0`)
 - `allowedActions` (CSV)
 - `commandTimeoutMs` (default `5000`)
 - `setStateAckAllowed` (default `true`)

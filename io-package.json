@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "news": {
+      "0.9.1": {
+        "en": "Add typical ioBroker admin settings page (jsonConfig) for all native options",
+        "de": "Typische ioBroker-Admin-Einstellungsseite (jsonConfig) für alle Native-Optionen ergänzt"
+      },
       "0.9.0": {
         "en": "Add habit learning phases and post-learning home automation optimization for OpenClaw agents",
         "de": "Gewohnheitslernen mit Phasenmodell und anschließender Home-Automation-Optimierung für OpenClaw-Agenten"
@@ -66,7 +70,7 @@
     "dataSource": "push",
     "compact": true,
     "adminUI": {
-      "config": "none"
+      "config": "json"
     }
   },
   "native": {

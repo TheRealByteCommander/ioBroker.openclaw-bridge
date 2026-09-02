@@ -59,6 +59,17 @@ test('normalizeConfig applies sane defaults', () => {
   assert.equal(cfg.maxBatchOperations, 25);
 });
 
+test('normalizeConfig accepts chip arrays from the admin settings page', () => {
+  const cfg = normalizeConfig({
+    allowedPrefixes: ['javascript.0', '0_userdata.0'],
+    allowedActions: ['ping', 'help'],
+    habitWatchPrefixes: ['zigbee.0'],
+  });
+  assert.deepEqual(cfg.allowedPrefixes, ['javascript.0', '0_userdata.0']);
+  assert.deepEqual(cfg.allowedActions, ['ping', 'help']);
+  assert.deepEqual(cfg.habitWatchPrefixes, ['zigbee.0']);
+});
+
 test('retryAsync retries and succeeds', async () => {
   let attempts = 0;
   const value = await retryAsync(async () => {

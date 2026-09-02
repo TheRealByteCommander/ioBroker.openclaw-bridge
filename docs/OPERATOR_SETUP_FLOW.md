@@ -5,8 +5,8 @@ Schneller, sicherer Start ohne trial-and-error.
 
 ## 1) 5-Minuten-Setup
 1. Adapter starten (`openclaw-bridge.0`).
-2. In `native` nur die wirklich benötigten Prefixe in `allowedPrefixes` setzen.
-3. Kritische Präfixe in `criticalStatePrefixes` prüfen.
+2. Instanz-Einstellungsseite öffnen und nur die wirklich benötigten Prefixe unter **Erlaubte Prefixe** setzen.
+3. Kritische Prefixe unter **Sicherheit** prüfen.
 4. Smoke-Command senden:
    - `{ "action": "ping" }`
 5. Hilfe abrufen:
