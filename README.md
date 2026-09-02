@@ -29,7 +29,7 @@ Produktionsnahe Interface-Schicht zwischen OpenClaw (Conversational Agent) und i
 ```json
 {
   "requestId": "optional",
-  "action": "getState | setState | listStates | getStates | ping | help | handleIntent | executePlan | validatePlan | emitContextEvent | getContextEvents | handlePvSurplus | recordObservation | getHabits | getLearningStatus | setHabitMode | evaluateHabits | suggestAutomation | applyHabit | optimizeHome"
+  "action": "getState | setState | listStates | getStates | ping | help | handleIntent | executePlan | validatePlan | emitContextEvent | getContextEvents | handlePvSurplus | recordObservation | getHabits | getLearningStatus | setHabitMode | evaluateHabits | suggestAutomation | applyHabit | optimizeHome | checkGuards | getConstraints | planWithinBounds"
 }
 ```
 
