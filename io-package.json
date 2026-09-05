@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.12.1",
+    "version": "0.12.2",
     "news": {
+      "0.12.2": {
+        "en": "Guide tab shows the handbook in the instance (iframe + full text). Available version no longer sticks at 0.9.x: news only keeps 0.10+ keys so Admin string-compare cannot treat 0.9.0 as newer than 0.12.",
+        "de": "Tab Anleitung zeigt die Anleitung in der Instanz (iframe + Volltext). Verfügbare Version bleibt nicht mehr bei 0.9.x: News nur noch 0.10+, damit Admins String-Vergleich 0.9.0 nicht für neuer als 0.12 hält."
+      },
       "0.12.1": {
         "en": "In-adapter handbook (Guide tab, ANLEITUNG.html). Current release: operating envelope, habit learning, object rules, PV thresholds. Version news are listed newest-first so Admin matches the installed version.",
         "de": "Anleitung im Adapter (Tab Anleitung, ANLEITUNG.html). Aktueller Stand: Rahmenbedingungen, Gewohnheiten, Objekt-Regeln, PV-Schwellwerte. Versionshinweise stehen neueste zuerst, damit Admin zur installierten Version passt."
@@ -18,42 +22,6 @@
       "0.10.0": {
         "en": "Per-object AND/OR/XOR guards and max-on duration limits in the admin settings page.",
         "de": "Objekt-Regeln mit AND/OR/XOR und maximaler Einschaltdauer in der Admin-Einstellungsseite."
-      },
-      "0.9.1": {
-        "en": "Typical ioBroker admin settings page (jsonConfig) for all native options.",
-        "de": "Typische ioBroker-Admin-Einstellungsseite (jsonConfig) für alle Native-Optionen."
-      },
-      "0.9.0": {
-        "en": "Habit learning phases and post-learning home automation optimization for OpenClaw agents.",
-        "de": "Gewohnheitslernen mit Phasenmodell und Home-Automation-Optimierung für OpenClaw-Agenten."
-      },
-      "0.8.0": {
-        "en": "Alexa speak, local STT transcribe and voiceCommand routing with guardrails.",
-        "de": "Alexa speak, lokale STT transcribe und voiceCommand-Routing mit Guardrails."
-      },
-      "0.6.0": {
-        "en": "batchSetStates, syncSnapshot, telemetry, retry/backoff and queue high-watermark.",
-        "de": "batchSetStates, syncSnapshot, Telemetrie, Retry/Backoff und Queue-High-Watermark."
-      },
-      "0.5.0": {
-        "en": "help action, nextAction error guidance and setup/troubleshooting docs.",
-        "de": "help-Action, nextAction-Fehlerhinweise und Setup-/Troubleshooting-Doku."
-      },
-      "0.4.0": {
-        "en": "validatePlan dry-run and bounded context event history (getContextEvents).",
-        "de": "validatePlan Dry-Run und begrenzte Kontext-Event-Historie (getContextEvents)."
-      },
-      "0.3.0": {
-        "en": "Conversational intents, context events, critical-action confirmation and PV surplus trigger.",
-        "de": "Conversational Intents, Kontext-Events, Bestätigung für kritische Aktionen und PV-Trigger."
-      },
-      "0.2.0": {
-        "en": "Request correlation, structured errors, action whitelist, ACL, timeouts and getStates.",
-        "de": "Request-Korrelation, strukturierte Fehler, Action-Whitelist, ACL, Timeouts und getStates."
-      },
-      "0.1.0": {
-        "en": "Initial MVP bridge for ioBroker state read/write from OpenClaw workflows.",
-        "de": "Initiales MVP: JSON-Commands von OpenClaw nach ioBroker States."
       }
     },
     "titleLang": {
@@ -73,16 +41,24 @@
       "assistant"
     ],
     "license": "MIT",
+    "licenseInformation": {
+      "license": "MIT",
+      "type": "free"
+    },
     "platform": "Javascript/Node.js",
     "mode": "daemon",
     "type": "misc-data",
     "icon": "openclaw-bridge.png",
     "enabled": true,
-    "extIcon": "",
+    "extIcon": "https://raw.githubusercontent.com/TheRealByteCommander/ioBroker.openclaw-bridge/master/openclaw-bridge.png",
     "readme": "https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge/blob/master/README.md",
     "docs": {
-      "de": ["docs/de/ANLEITUNG.md"],
-      "en": ["docs/en/HANDBOOK.md"]
+      "de": [
+        "docs/de/ANLEITUNG.md"
+      ],
+      "en": [
+        "docs/en/HANDBOOK.md"
+      ]
     },
     "loglevel": "info",
     "messagebox": true,

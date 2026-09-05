@@ -2,6 +2,11 @@
 
 Alle nennenswerten Änderungen an `iobroker.openclaw-bridge`.
 
+## 0.12.2 — 2026-09-05
+
+- **Anleitung in der Instanz:** Tab **Anleitung** zeigt die Handbuchseite (`ANLEITUNG.html` im iframe) plus denselben Inhalt als Text. Kein separates Browser-URL-Rätsel mehr. Admin-Doku liegt zusätzlich unter `admin/docs/`.
+- **Verfügbare Version:** `common.news` enthält nur noch 0.10.0–0.12.2. Keys wie `0.9.0` sortieren als String *über* `0.12.x`, deshalb zeigte Admin „verfügbar 0.9.0“.
+
 ## 0.12.1 — 2026-09-05
 
 Ausführliche Operator-Anleitung liegt **im Adapter**: Tab **Anleitung**, `admin/ANLEITUNG.html`, `docs/de/ANLEITUNG.md` (ioBroker `common.docs`). Enthält Installation, Tests ohne OpenClaw, simple-api :8087 und OpenClaw-Skill. `common.news` ist semver-absteigend (0.12.1 … 0.1.0), damit Admin nicht 0.9.0 als „verfügbar“ anzeigt.

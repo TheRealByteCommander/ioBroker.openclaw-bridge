@@ -11,32 +11,200 @@
         "_guideTitle": {
           "type": "header",
           "text": {
-            "en": "OpenClaw-Bridge handbook (shipped with this adapter)",
-            "de": "OpenClaw-Bridge-Anleitung (liegt in diesem Adapter)"
+            "en": "OpenClaw-Bridge handbook",
+            "de": "OpenClaw-Bridge — Anleitung"
           },
           "xs": 12
         },
-        "_guideWhere": {
+        "_guideOpenHtml": {
+          "type": "staticLink",
+          "label": {
+            "en": "Open formatted handbook in a new tab",
+            "de": "Formatierte Anleitung in neuem Tab öffnen"
+          },
+          "href": "/adapter/openclaw-bridge/ANLEITUNG.html",
+          "button": true,
+          "icon": "book",
+          "variant": "contained",
+          "color": "primary",
+          "target": "_blank",
+          "xs": 12,
+          "sm": 6
+        },
+        "_guideFrame": {
+          "type": "iframe",
+          "url": "/adapter/openclaw-bridge/ANLEITUNG.html",
+          "height": 720,
+          "allowFullscreen": true,
+          "loading": "eager",
+          "reloadOnShow": true,
+          "xs": 12
+        },
+        "_guideFallbackNote": {
           "type": "staticText",
           "text": {
-            "en": "Full guide in the adapter: open /adapter/openclaw-bridge/ANLEITUNG.html on the Admin port (usually 8081), or Adapter info → Documentation. On disk: node_modules/iobroker.openclaw-bridge/docs/de/ANLEITUNG.md",
-            "de": "Vollständige Anleitung im Adapter: im Browser /adapter/openclaw-bridge/ANLEITUNG.html auf dem Admin-Port (meist 8081) öffnen, oder Adapter-Info → Dokumentation. Auf der Platte: node_modules/iobroker.openclaw-bridge/docs/de/ANLEITUNG.md"
+            "en": "If the frame above is empty (older Admin), the same handbook follows here. This adapter has no HTTP of its own: OpenClaw reaches it only via simple-api (port 8087) → openclaw-bridge.0.control.command.",
+            "de": "Wenn der Rahmen oben leer bleibt (ältere Admin-Version), steht dieselbe Anleitung hier darunter. Der Adapter hat kein eigenes HTTP: OpenClaw erreicht ihn nur über simple-api (Port 8087) → openclaw-bridge.0.control.command."
           },
           "xs": 12
         },
-        "_guideFlow": {
-          "type": "staticText",
+        "_guideWhatH": {
+          "type": "header",
           "text": {
-            "en": "1) Start this instance. 2) Test without OpenClaw: write {\"action\":\"ping\",\"requestId\":\"test-1\"} to openclaw-bridge.0.control.command (ack=false), read responses.test-1. 3) Install simple-api, note Port (e.g. 8087). 4) From the OpenClaw host: curl GET /set/openclaw-bridge.0.control.command and /get/openclaw-bridge.0.responses.test-1. 5) Add an OpenClaw skill that ONLY writes control.command and starts with getConstraints. Never write Shelly/Zigbee states directly.",
-            "de": "1) Diese Instanz starten. 2) Test ohne OpenClaw: {\"action\":\"ping\",\"requestId\":\"test-1\"} nach openclaw-bridge.0.control.command schreiben (ack=false), responses.test-1 lesen. 3) simple-api installieren, Port notieren (z. B. 8087). 4) Von der OpenClaw-Maschine: curl GET /set/openclaw-bridge.0.control.command und /get/openclaw-bridge.0.responses.test-1. 5) OpenClaw-Skill anlegen, die NUR control.command beschreibt und mit getConstraints startet. Niemals Shelly/Zigbee direkt schreiben."
+            "en": "1. What this adapter is",
+            "de": "1. Was dieser Adapter ist"
           },
           "xs": 12
         },
-        "_guideSkill": {
+        "_guideWhat": {
           "type": "staticText",
           "text": {
-            "en": "simple-api example (port 8087): curl -G http://<iobroker-ip>:8087/set/openclaw-bridge.0.control.command --data-urlencode 'value={\"action\":\"ping\",\"requestId\":\"oc-1\"}' then GET http://<iobroker-ip>:8087/get/openclaw-bridge.0.responses.oc-1. Dry-run: {\"action\":\"handleIntent\",\"text\":\"mir ist kalt\",\"execute\":false}. Agent loop: getConstraints → planWithinBounds → execute only allowed.",
-            "de": "simple-api-Beispiel (Port 8087): curl -G http://<iobroker-ip>:8087/set/openclaw-bridge.0.control.command --data-urlencode 'value={\"action\":\"ping\",\"requestId\":\"oc-1\"}' danach GET http://<iobroker-ip>:8087/get/openclaw-bridge.0.responses.oc-1. Dry-Run: {\"action\":\"handleIntent\",\"text\":\"mir ist kalt\",\"execute\":false}. Agent-Loop: getConstraints → planWithinBounds → nur allowed ausführen."
+            "en": "The bridge is the only allowed interface between OpenClaw and your home automation. OpenClaw decides what is useful. The bridge enforces what is allowed (prefix ACL, action whitelist, confirmation, AND/OR/XOR, watt thresholds, max on-time). Never write Shelly/Zigbee/system states directly — only control.command.",
+            "de": "Die Bridge ist die einzige erlaubte Schnittstelle zwischen OpenClaw und der Hausautomation. OpenClaw entscheidet, was sinnvoll ist. Die Bridge erzwingt, was erlaubt ist (Prefix-ACL, Action-Whitelist, Bestätigung, AND/OR/XOR, Watt-Schwellwerte, max. Einschaltdauer). Niemals Shelly-/Zigbee-/system-States direkt schreiben — nur control.command."
+          },
+          "xs": 12
+        },
+        "_guideInstallH": {
+          "type": "header",
+          "text": {
+            "en": "2. Install / update",
+            "de": "2. Installation / Update"
+          },
+          "xs": 12
+        },
+        "_guideInstall": {
+          "type": "staticText",
+          "text": {
+            "en": "The GitHub repo must be named ioBroker.openclaw-bridge.\nInstall: iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.2 && iobroker add openclaw-bridge && iobroker start openclaw-bridge.0\nUpdate: same url command, then iobroker upload openclaw-bridge && iobroker restart openclaw-bridge.0\nOpen this page with the instance wrench. After upload, the formatted handbook is also at /adapter/openclaw-bridge/ANLEITUNG.html",
+            "de": "Das GitHub-Repo muss ioBroker.openclaw-bridge heißen.\nInstallieren: iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.2 && iobroker add openclaw-bridge && iobroker start openclaw-bridge.0\nUpdate: derselbe url-Befehl, danach iobroker upload openclaw-bridge && iobroker restart openclaw-bridge.0\nDiese Seite öffnest du über das Schraubenschlüssel-Symbol der Instanz. Nach upload liegt die formatierte Anleitung auch unter /adapter/openclaw-bridge/ANLEITUNG.html"
+          },
+          "xs": 12
+        },
+        "_guideTabsH": {
+          "type": "header",
+          "text": {
+            "en": "3. Settings tabs",
+            "de": "3. Einstellungsseite (Tabs)"
+          },
+          "xs": 12
+        },
+        "_guideTabs": {
+          "type": "staticText",
+          "text": {
+            "en": "Security: allowed prefixes (start with 0_userdata.0), allowed actions (must include getConstraints and planWithinBounds), critical prefixes (need confirmation:true), ack=true.\nRules: the operating envelope — e.g. pump only if a valve is open (OR), socket max 60 min, pool heater only at ≥ 4000 W. Thresholds are extra AND. Valve and pump may be in the same plan; the bridge switches conditions first.\nDevices: comfort temperature, PV watts, surplus-load table.\nHabits: default observe (learn only). autonomous only with confirmation:true and ready thresholds.\nVoice / Advanced: Alexa speak, STT, timeouts — change only if needed.",
+            "de": "Sicherheit: erlaubte Prefixe (zuerst 0_userdata.0), erlaubte Actions (getConstraints und planWithinBounds müssen drin sein), kritische Prefixe (brauchen confirmation:true), ack=true.\nRegeln: das sind die Rahmenbedingungen — z. B. Pumpe nur wenn ein Ventil offen ist (OR), Steckdose max. 60 Min., Poolheizung erst ab ≥ 4000 W. Schwellwerte gelten zusätzlich per AND. Ventil und Pumpe dürfen im selben Plan stehen; die Bridge schaltet Bedingungen zuerst.\nGeräte: Komfort-Temperatur, PV-Watt, Tabelle der Überschuss-Lasten.\nGewohnheiten: Default observe (nur lernen). autonomous nur mit confirmation:true und erfüllten Schwellen.\nSprache / Erweitert: Alexa-Speak, STT, Timeouts — nur bei Bedarf ändern."
+          },
+          "xs": 12
+        },
+        "_guideStatesH": {
+          "type": "header",
+          "text": {
+            "en": "4. Important states",
+            "de": "4. Wichtige States"
+          },
+          "xs": 12
+        },
+        "_guideStates": {
+          "type": "staticText",
+          "text": {
+            "en": "Prefix openclaw-bridge.0.\nWrite: control.command (JSON, always ack=false).\nRead: control.lastResult, responses.<requestId>, intents.lastPlan, safety.pendingConfirmation, safety.lastGuardBlock, guards.runtime, habits.mode, habits.learningStatus, info.successCount / info.lastError.",
+            "de": "Präfix openclaw-bridge.0.\nSchreiben: control.command (JSON, immer ack=false).\nLesen: control.lastResult, responses.<requestId>, intents.lastPlan, safety.pendingConfirmation, safety.lastGuardBlock, guards.runtime, habits.mode, habits.learningStatus, info.successCount / info.lastError."
+          },
+          "xs": 12
+        },
+        "_guideTestH": {
+          "type": "header",
+          "text": {
+            "en": "5. Test without OpenClaw",
+            "de": "5. Test ohne OpenClaw"
+          },
+          "xs": 12
+        },
+        "_guideTest": {
+          "type": "staticText",
+          "text": {
+            "en": "Objects → openclaw-bridge.0.control.command, set (ack off):\n{\"action\":\"ping\",\"requestId\":\"test-1\"}\nRead responses.test-1 or control.lastResult. Expect ok:true and data.pong.\nMore: {\"action\":\"help\",\"requestId\":\"test-2\"} · {\"action\":\"getConstraints\",\"requestId\":\"test-3\"} · {\"action\":\"handleIntent\",\"text\":\"mir ist kalt\",\"execute\":false,\"requestId\":\"test-4\"}\nexecute:false writes no devices.\nVia simple-api (your port, e.g. 8087):\ncurl -sS -G \"http://127.0.0.1:8087/set/openclaw-bridge.0.control.command\" --data-urlencode 'value={\"action\":\"ping\",\"requestId\":\"test-1\"}'\ncurl -sS \"http://127.0.0.1:8087/get/openclaw-bridge.0.responses.test-1\"\nFrom another host replace 127.0.0.1 with the ioBroker IP. simple-api must not bind only to 127.0.0.1.",
+            "de": "Objekte → openclaw-bridge.0.control.command, Wert setzen (ack aus):\n{\"action\":\"ping\",\"requestId\":\"test-1\"}\nLesen: responses.test-1 oder control.lastResult. Erwartet ok:true und data.pong.\nWeitere: {\"action\":\"help\",\"requestId\":\"test-2\"} · {\"action\":\"getConstraints\",\"requestId\":\"test-3\"} · {\"action\":\"handleIntent\",\"text\":\"mir ist kalt\",\"execute\":false,\"requestId\":\"test-4\"}\nexecute:false schreibt keine Geräte.\nÜber simple-api (dein Port, z. B. 8087):\ncurl -sS -G \"http://127.0.0.1:8087/set/openclaw-bridge.0.control.command\" --data-urlencode 'value={\"action\":\"ping\",\"requestId\":\"test-1\"}'\ncurl -sS \"http://127.0.0.1:8087/get/openclaw-bridge.0.responses.test-1\"\nVon einem anderen Rechner 127.0.0.1 durch die ioBroker-IP ersetzen. simple-api darf nicht nur auf 127.0.0.1 gebunden sein."
+          },
+          "xs": 12
+        },
+        "_guideConnectH": {
+          "type": "header",
+          "text": {
+            "en": "6. Connect OpenClaw",
+            "de": "6. OpenClaw anbinden"
+          },
+          "xs": 12
+        },
+        "_guideConnect": {
+          "type": "staticText",
+          "text": {
+            "en": "OpenClaw --HTTP GET--> simple-api :8087 --> control.command, then GET responses.<requestId>.\nPrereqs: instance running, object ping green, simple-api.0 port 8087, reachable from the OpenClaw host, not exposed to the internet.\nSkill file e.g. ~/.openclaw/workspace/skills/iobroker-bridge/SKILL.md: write ONLY control.command, read responses.<requestId>, never device states. Every control wish: create requestId, GET /set/...control.command?value=<JSON>, wait, GET /get/...responses.<requestId>. On ok:false follow error.code, error.nextAction, error.hint.\nRequired order: getConstraints → planWithinBounds or handleIntent execute:false → run only allowed → confirmation:true for critical writes.\nExamples: {\"action\":\"ping\"} · {\"action\":\"help\"} · {\"action\":\"getConstraints\"} · {\"action\":\"handleIntent\",\"text\":\"gute nacht\",\"execute\":false}",
+            "de": "OpenClaw --HTTP GET--> simple-api :8087 --> control.command, danach GET responses.<requestId>.\nVoraussetzungen: Instanz läuft, Objekte-ping ist grün, simple-api.0 Port 8087, von der OpenClaw-Maschine erreichbar, nicht ins Internet öffnen.\nSkill z. B. ~/.openclaw/workspace/skills/iobroker-bridge/SKILL.md: NUR control.command schreiben, responses.<requestId> lesen, niemals Geräte-States. Jeder Steuerwunsch: requestId erzeugen, GET /set/...control.command?value=<JSON>, warten, GET /get/...responses.<requestId>. Bei ok:false die Felder error.code, error.nextAction, error.hint befolgen.\nPflicht-Reihenfolge: getConstraints → planWithinBounds oder handleIntent execute:false → nur allowed ausführen → confirmation:true bei kritischen Writes.\nBeispiele: {\"action\":\"ping\"} · {\"action\":\"help\"} · {\"action\":\"getConstraints\"} · {\"action\":\"handleIntent\",\"text\":\"gute nacht\",\"execute\":false}"
+          },
+          "xs": 12
+        },
+        "_guideLoopH": {
+          "type": "header",
+          "text": {
+            "en": "7. Agent loop and actions",
+            "de": "7. Agent-Loop und Actions"
+          },
+          "xs": 12
+        },
+        "_guideLoop": {
+          "type": "staticText",
+          "text": {
+            "en": "1 ping/help · 2 getConstraints (what is allowed now) · 3 planWithinBounds or handleIntent execute:false · 4 execute only allowed, use hints on blocked · 5 recordObservation · 6 getLearningStatus · 7 optimizeHome after learning, still inside the envelope.\nLife: ping, help. Read: getState, getStates, listStates, syncSnapshot. Write: setState, executePlan, batchSetStates. Dialog: handleIntent, validatePlan. Envelope: getConstraints, planWithinBounds, checkGuards. Learn: recordObservation, getHabits, getLearningStatus, setHabitMode, evaluateHabits, suggestAutomation, applyHabit, optimizeHome. Energy: handlePvSurplus. Context: emitContextEvent, getContextEvents. Telemetry: getTelemetry. Voice: speak, transcribe, voiceCommand.\nEvery action must be on the Allowed actions list.",
+            "de": "1 ping/help · 2 getConstraints (was jetzt erlaubt ist) · 3 planWithinBounds oder handleIntent execute:false · 4 nur allowed ausführen, Hints bei blocked nutzen · 5 recordObservation · 6 getLearningStatus · 7 optimizeHome nach der Lernphase, weiter nur innerhalb der Grenzen.\nLeben: ping, help. Lesen: getState, getStates, listStates, syncSnapshot. Schreiben: setState, executePlan, batchSetStates. Dialog: handleIntent, validatePlan. Envelope: getConstraints, planWithinBounds, checkGuards. Lernen: recordObservation, getHabits, getLearningStatus, setHabitMode, evaluateHabits, suggestAutomation, applyHabit, optimizeHome. Energie: handlePvSurplus. Kontext: emitContextEvent, getContextEvents. Telemetrie: getTelemetry. Sprache: speak, transcribe, voiceCommand.\nJede Action muss unter Erlaubte Actions stehen."
+          },
+          "xs": 12
+        },
+        "_guideErrorsH": {
+          "type": "header",
+          "text": {
+            "en": "8. Error codes",
+            "de": "8. Fehlercodes"
+          },
+          "xs": 12
+        },
+        "_guideErrors": {
+          "type": "staticText",
+          "text": {
+            "en": "Every reply has ok, requestId, action, and data or error (code, message, details, nextAction, often hint).\nEACTIONFORBIDDEN — action not whitelisted → add it or drop the call.\nEIDFORBIDDEN — state outside prefixes → widen prefix or other ID.\nECONFIRMREQUIRED — critical action → retry with confirmation:true.\nEGUARDFAILED — AND/OR/XOR not met → put hint.companions in the same plan.\nETHRESHOLD — watts/number too low → wait, hint.deficit.\nEDURATIONLIMIT — on too long → turn off or raise limit.\nECOOLDOWN — min-off running → wait.\nENOTREADY — not learned yet → keep observing.\nEHABITNOTFOUND — unknown habit → getHabits.\nEQUEUEFULL — too many commands → retry later.\nETIMEOUT — adapter too slow → load/timeout.\nEBADJSON — invalid JSON → fix payload.",
+            "de": "Jede Antwort hat ok, requestId, action und data oder error (code, message, details, nextAction, oft hint).\nEACTIONFORBIDDEN — Action nicht auf der Whitelist → Action ergänzen oder weglassen.\nEIDFORBIDDEN — State außerhalb der Prefixe → Prefix erweitern oder andere ID.\nECONFIRMREQUIRED — kritische Aktion → mit confirmation:true wiederholen.\nEGUARDFAILED — AND/OR/XOR nicht erfüllt → hint.companions in denselben Plan.\nETHRESHOLD — Watt/Zahl zu niedrig → warten, hint.deficit.\nEDURATIONLIMIT — zu lange ein → aus oder Limit erhöhen.\nECOOLDOWN — Mindest-Aus läuft → warten.\nENOTREADY — noch nicht gelernt → weiter beobachten.\nEHABITNOTFOUND — unbekannter Habit → getHabits.\nEQUEUEFULL — zu viele Commands → später retry.\nETIMEOUT — Adapter zu langsam → Last/Timeout.\nEBADJSON — kein gültiges JSON → Payload prüfen."
+          },
+          "xs": 12
+        },
+        "_guideSafetyH": {
+          "type": "header",
+          "text": {
+            "en": "9. Safety",
+            "de": "9. Sicherheit"
+          },
+          "xs": 12
+        },
+        "_guideSafety": {
+          "type": "staticText",
+          "text": {
+            "en": "simple-api only in LAN or behind auth. Keep prefixes and actions narrow. Leave system. and admin.0 critical. OpenClaw must not have a direct write path to device adapters. Cameras (Frigate): detection stays in Frigate. The bridge only reads states if frigate.0 is in allowed prefixes.",
+            "de": "simple-api nur im LAN oder hinter Authentifizierung. Prefixe und Actions eng halten. system. und admin.0 kritisch lassen. OpenClaw bekommt keinen direkten Schreibweg an Geräte-Adapter. Kameras (Frigate): Erkennung bleibt in Frigate. Die Bridge liest nur States, wenn frigate.0 in den erlaubten Prefixen steht."
+          },
+          "xs": 12
+        },
+        "_guideCheckH": {
+          "type": "header",
+          "text": {
+            "en": "10. Checklist: OpenClaw is connected",
+            "de": "10. Checkliste „OpenClaw ist verbunden“"
+          },
+          "xs": 12
+        },
+        "_guideCheck": {
+          "type": "staticText",
+          "text": {
+            "en": "1) openclaw-bridge.0 is running. 2) Objects ping → ok. 3) simple-api port 8087 reachable from the OpenClaw host. 4) curl ping via :8087 → pong. 5) Skill with base URL and “only control.command”. 6) Chat: “ping the ioBroker bridge” → ok. 7) Chat: “what are the current constraints?” → getConstraints.\nIf step 2 fails: the bridge. If 2 works and 4 does not: simple-api/network. If 4 works and 6 does not: the skill.",
+            "de": "1) openclaw-bridge.0 läuft. 2) Objekte-ping → ok. 3) simple-api Port 8087 von der OpenClaw-Maschine erreichbar. 4) curl-ping über :8087 → pong. 5) Skill mit Base-URL und „nur control.command“. 6) Chat: „ping die Bridge“ → ok. 7) Chat: „was sind die aktuellen Rahmenbedingungen?“ → getConstraints.\nWenn Schritt 2 scheitert: Bridge. Wenn 2 geht und 4 nicht: simple-api/Netz. Wenn 4 geht und 6 nicht: Skill."
           },
           "xs": 12
         }
@@ -170,50 +338,95 @@
             {
               "type": "checkbox",
               "attr": "enabled",
-              "title": { "en": "On", "de": "An" },
+              "title": {
+                "en": "On",
+                "de": "An"
+              },
               "default": true,
               "width": "50px"
             },
             {
               "type": "text",
               "attr": "name",
-              "title": { "en": "Name", "de": "Name" },
+              "title": {
+                "en": "Name",
+                "de": "Name"
+              },
               "width": "140px"
             },
             {
               "type": "objectId",
               "attr": "targetId",
-              "title": { "en": "Target object", "de": "Ziel-Objekt" },
+              "title": {
+                "en": "Target object",
+                "de": "Ziel-Objekt"
+              },
               "width": "220px"
             },
             {
               "type": "select",
               "attr": "when",
-              "title": { "en": "When", "de": "Wann" },
+              "title": {
+                "en": "When",
+                "de": "Wann"
+              },
               "default": "turn_on",
               "width": "120px",
               "options": [
-                { "value": "turn_on", "label": { "en": "On turning on", "de": "Beim Einschalten" } },
-                { "value": "turn_off", "label": { "en": "On turning off", "de": "Beim Ausschalten" } },
-                { "value": "always", "label": { "en": "Always", "de": "Immer" } }
+                {
+                  "value": "turn_on",
+                  "label": {
+                    "en": "On turning on",
+                    "de": "Beim Einschalten"
+                  }
+                },
+                {
+                  "value": "turn_off",
+                  "label": {
+                    "en": "On turning off",
+                    "de": "Beim Ausschalten"
+                  }
+                },
+                {
+                  "value": "always",
+                  "label": {
+                    "en": "Always",
+                    "de": "Immer"
+                  }
+                }
               ]
             },
             {
               "type": "select",
               "attr": "combinator",
-              "title": { "en": "Logic", "de": "Logik" },
+              "title": {
+                "en": "Logic",
+                "de": "Logik"
+              },
               "default": "or",
               "width": "90px",
               "options": [
-                { "value": "or", "label": "OR" },
-                { "value": "and", "label": "AND" },
-                { "value": "xor", "label": "XOR" }
+                {
+                  "value": "or",
+                  "label": "OR"
+                },
+                {
+                  "value": "and",
+                  "label": "AND"
+                },
+                {
+                  "value": "xor",
+                  "label": "XOR"
+                }
               ]
             },
             {
               "type": "text",
               "attr": "conditionIds",
-              "title": { "en": "Condition IDs (CSV)", "de": "Bedingungs-IDs (CSV)" },
+              "title": {
+                "en": "Condition IDs (CSV)",
+                "de": "Bedingungs-IDs (CSV)"
+              },
               "help": {
                 "en": "e.g. 0_userdata.0.valve.bed1,0_userdata.0.valve.bed2",
                 "de": "z. B. 0_userdata.0.valve.bed1,0_userdata.0.valve.bed2"
@@ -223,7 +436,10 @@
             {
               "type": "text",
               "attr": "conditionPrefix",
-              "title": { "en": "Condition prefix", "de": "Bedingungs-Prefix" },
+              "title": {
+                "en": "Condition prefix",
+                "de": "Bedingungs-Prefix"
+              },
               "help": {
                 "en": "All states under this prefix participate in AND/OR/XOR",
                 "de": "Alle States unter diesem Prefix zählen für AND/OR/XOR"
@@ -233,7 +449,10 @@
             {
               "type": "text",
               "attr": "conditionsJson",
-              "title": { "en": "Advanced conditions JSON", "de": "Erweiterte Bedingungen JSON" },
+              "title": {
+                "en": "Advanced conditions JSON",
+                "de": "Erweiterte Bedingungen JSON"
+              },
               "help": {
                 "en": "Optional extra compares, e.g. [{\"id\":\"0_userdata.0.tank.level\",\"op\":\"gte\",\"value\":20}]",
                 "de": "Weitere Vergleiche, z. B. [{\"id\":\"0_userdata.0.tank.level\",\"op\":\"gte\",\"value\":20}]"
@@ -243,7 +462,10 @@
             {
               "type": "objectId",
               "attr": "thresholdId",
-              "title": { "en": "Threshold state", "de": "Schwellwert-State" },
+              "title": {
+                "en": "Threshold state",
+                "de": "Schwellwert-State"
+              },
               "help": {
                 "en": "e.g. PV surplus watts",
                 "de": "z. B. PV-Überschuss in Watt"
@@ -253,21 +475,42 @@
             {
               "type": "select",
               "attr": "thresholdOp",
-              "title": { "en": "Op", "de": "Op" },
+              "title": {
+                "en": "Op",
+                "de": "Op"
+              },
               "default": "gte",
               "width": "90px",
               "options": [
-                { "value": "gte", "label": ">=" },
-                { "value": "gt", "label": ">" },
-                { "value": "lte", "label": "<=" },
-                { "value": "lt", "label": "<" },
-                { "value": "eq", "label": "=" }
+                {
+                  "value": "gte",
+                  "label": ">="
+                },
+                {
+                  "value": "gt",
+                  "label": ">"
+                },
+                {
+                  "value": "lte",
+                  "label": "<="
+                },
+                {
+                  "value": "lt",
+                  "label": "<"
+                },
+                {
+                  "value": "eq",
+                  "label": "="
+                }
               ]
             },
             {
               "type": "number",
               "attr": "thresholdValue",
-              "title": { "en": "Threshold value", "de": "Schwellwert" },
+              "title": {
+                "en": "Threshold value",
+                "de": "Schwellwert"
+              },
               "help": {
                 "en": "Pool heating example: 4000",
                 "de": "Beispiel Poolheizung: 4000"
@@ -280,7 +523,10 @@
             {
               "type": "number",
               "attr": "maxOnMinutes",
-              "title": { "en": "Max on (min)", "de": "Max. Ein (min)" },
+              "title": {
+                "en": "Max on (min)",
+                "de": "Max. Ein (min)"
+              },
               "min": 0,
               "max": 10080,
               "step": 1,
@@ -290,7 +536,10 @@
             {
               "type": "number",
               "attr": "minOffMinutes",
-              "title": { "en": "Min off (min)", "de": "Min. Aus (min)" },
+              "title": {
+                "en": "Min off (min)",
+                "de": "Min. Aus (min)"
+              },
               "min": 0,
               "max": 10080,
               "step": 1,
@@ -474,27 +723,39 @@
             {
               "type": "checkbox",
               "attr": "enabled",
-              "title": { "en": "On", "de": "An" },
+              "title": {
+                "en": "On",
+                "de": "An"
+              },
               "default": true,
               "width": "50px"
             },
             {
               "type": "text",
               "attr": "name",
-              "title": { "en": "Name", "de": "Name" },
+              "title": {
+                "en": "Name",
+                "de": "Name"
+              },
               "default": "Poolheizung",
               "width": "140px"
             },
             {
               "type": "objectId",
               "attr": "targetId",
-              "title": { "en": "Load / device", "de": "Last / Gerät" },
+              "title": {
+                "en": "Load / device",
+                "de": "Last / Gerät"
+              },
               "width": "220px"
             },
             {
               "type": "number",
               "attr": "minWatts",
-              "title": { "en": "On at (W)", "de": "Ein ab (W)" },
+              "title": {
+                "en": "On at (W)",
+                "de": "Ein ab (W)"
+              },
               "min": 0,
               "max": 100000,
               "step": 50,
@@ -504,7 +765,10 @@
             {
               "type": "number",
               "attr": "offBelowWatts",
-              "title": { "en": "Off below (W)", "de": "Aus unter (W)" },
+              "title": {
+                "en": "Off below (W)",
+                "de": "Aus unter (W)"
+              },
               "min": 0,
               "max": 100000,
               "step": 50,
@@ -514,7 +778,10 @@
             {
               "type": "number",
               "attr": "priority",
-              "title": { "en": "Priority", "de": "Priorität" },
+              "title": {
+                "en": "Priority",
+                "de": "Priorität"
+              },
               "help": {
                 "en": "Lower number first",
                 "de": "Niedrigere Zahl zuerst"
@@ -807,11 +1074,26 @@
             "de": "STT-Modell"
           },
           "options": [
-            { "label": "tiny", "value": "tiny" },
-            { "label": "base", "value": "base" },
-            { "label": "small", "value": "small" },
-            { "label": "medium", "value": "medium" },
-            { "label": "large", "value": "large" }
+            {
+              "label": "tiny",
+              "value": "tiny"
+            },
+            {
+              "label": "base",
+              "value": "base"
+            },
+            {
+              "label": "small",
+              "value": "small"
+            },
+            {
+              "label": "medium",
+              "value": "medium"
+            },
+            {
+              "label": "large",
+              "value": "large"
+            }
           ],
           "xs": 12,
           "sm": 6,
