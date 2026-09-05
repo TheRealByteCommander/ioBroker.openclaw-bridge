@@ -113,6 +113,12 @@ test('adapter ships the operator handbook for Admin and common.docs', () => {
   assert.deepEqual(ioPackage.common.docs.en, ['docs/en/HANDBOOK.md']);
 });
 
+test('custom repository file lists the current adapter version', () => {
+  const sources = JSON.parse(readDoc('sources-dist.json'));
+  assert.equal(sources['openclaw-bridge'].version, pkg.version);
+  assert.match(sources['openclaw-bridge'].meta, /io-package\.json$/);
+});
+
 test('io-package ships instanceObjects including a writable command channel', () => {
   assert.equal(ioPackage.objects, undefined);
   assert.equal(Array.isArray(ioPackage.instanceObjects), true);
