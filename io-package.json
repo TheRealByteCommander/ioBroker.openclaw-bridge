@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.12.0",
+    "version": "0.12.1",
     "news": {
+      "0.12.1": {
+        "en": "Ship a full operator handbook in the adapter (Admin Guide tab, ANLEITUNG.html, docs/de)",
+        "de": "Ausführliche Anleitung im Adapter (Tab Anleitung, ANLEITUNG.html, docs/de)"
+      },
       "0.12.0": {
         "en": "Expose operating envelope so OpenClaw plans and optimizes only within configured constraints",
         "de": "Rahmenbedingungen für OpenClaw: Agent plant und steuert nur innerhalb der gesetzten Grenzen"
@@ -75,7 +79,11 @@
     "icon": "openclaw-bridge.png",
     "enabled": true,
     "extIcon": "",
-    "readme": "https://github.com/TheRealByteCommander/ioBroker/blob/master/README.md",
+    "readme": "https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge/blob/master/README.md",
+    "docs": {
+      "de": ["docs/de/ANLEITUNG.md"],
+      "en": ["docs/en/HANDBOOK.md"]
+    },
     "loglevel": "info",
     "messagebox": true,
     "connectionType": "local",

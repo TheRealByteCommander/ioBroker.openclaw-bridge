@@ -28,6 +28,7 @@ test('jsonConfig is valid JSON with tabs for operator settings', () => {
   const raw = fs.readFileSync(path.join(__dirname, '..', 'admin', 'jsonConfig.json'), 'utf8');
   const config = JSON.parse(raw);
   assert.equal(config.type, 'tabs');
+  assert.ok(config.items.tabGuide);
   assert.ok(config.items.tabSecurity);
   assert.ok(config.items.tabRules);
   assert.ok(config.items.tabDevices);

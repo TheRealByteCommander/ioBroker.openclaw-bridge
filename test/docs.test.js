@@ -61,6 +61,18 @@ test('docs index points at the current operator and agent guides', () => {
   }
 });
 
+test('adapter ships the operator handbook for Admin and common.docs', () => {
+  assert.equal(fs.existsSync(path.join(root, 'docs/de/ANLEITUNG.md')), true);
+  assert.equal(fs.existsSync(path.join(root, 'docs/en/HANDBOOK.md')), true);
+  assert.equal(fs.existsSync(path.join(root, 'admin/ANLEITUNG.html')), true);
+  const de = readDoc('docs/de/ANLEITUNG.md');
+  for (const token of ['simple-api', '8087', 'control.command', 'getConstraints', 'SKILL.md']) {
+    assert.equal(de.includes(token), true, `ANLEITUNG.md missing ${token}`);
+  }
+  assert.deepEqual(ioPackage.common.docs.de, ['docs/de/ANLEITUNG.md']);
+  assert.deepEqual(ioPackage.common.docs.en, ['docs/en/HANDBOOK.md']);
+});
+
 test('README describes the operating envelope for OpenClaw', () => {
   const readme = readDoc('README.md');
   for (const token of ['getConstraints', 'planWithinBounds', 'Rahmenbedingungen', 'jsonConfig']) {
