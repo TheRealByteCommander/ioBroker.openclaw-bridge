@@ -4,56 +4,56 @@
     "version": "0.12.1",
     "news": {
       "0.12.1": {
-        "en": "Ship a full operator handbook in the adapter (Admin Guide tab, ANLEITUNG.html, docs/de)",
-        "de": "Ausführliche Anleitung im Adapter (Tab Anleitung, ANLEITUNG.html, docs/de)"
+        "en": "In-adapter handbook (Guide tab, ANLEITUNG.html). Current release: operating envelope, habit learning, object rules, PV thresholds. Version news are listed newest-first so Admin matches the installed version.",
+        "de": "Anleitung im Adapter (Tab Anleitung, ANLEITUNG.html). Aktueller Stand: Rahmenbedingungen, Gewohnheiten, Objekt-Regeln, PV-Schwellwerte. Versionshinweise stehen neueste zuerst, damit Admin zur installierten Version passt."
       },
       "0.12.0": {
-        "en": "Expose operating envelope so OpenClaw plans and optimizes only within configured constraints",
-        "de": "Rahmenbedingungen für OpenClaw: Agent plant und steuert nur innerhalb der gesetzten Grenzen"
+        "en": "Operating envelope: OpenClaw plans only within ACL, AND/OR/XOR, thresholds and max on-time (getConstraints, planWithinBounds).",
+        "de": "Rahmenbedingungen: OpenClaw plant nur innerhalb von ACL, AND/OR/XOR, Schwellwerten und max. Einschaltdauer (getConstraints, planWithinBounds)."
       },
       "0.11.0": {
-        "en": "Add numeric thresholds and per-load PV surplus switching (e.g. pool heating from 4000 W)",
-        "de": "Zahlen-Schwellwerte und PV-Überschuss je Last (z. B. Poolheizung ab 4000 W)"
+        "en": "Numeric thresholds and per-load PV surplus switching (e.g. pool heating from 4000 W).",
+        "de": "Zahlen-Schwellwerte und PV-Überschuss je Last (z. B. Poolheizung ab 4000 W)."
       },
       "0.10.0": {
-        "en": "Add per-object AND/OR/XOR guards and max-on duration limits in the admin settings page",
-        "de": "Objekt-Regeln mit AND/OR/XOR und maximaler Einschaltdauer in der Admin-Einstellungsseite"
+        "en": "Per-object AND/OR/XOR guards and max-on duration limits in the admin settings page.",
+        "de": "Objekt-Regeln mit AND/OR/XOR und maximaler Einschaltdauer in der Admin-Einstellungsseite."
       },
       "0.9.1": {
-        "en": "Add typical ioBroker admin settings page (jsonConfig) for all native options",
-        "de": "Typische ioBroker-Admin-Einstellungsseite (jsonConfig) für alle Native-Optionen ergänzt"
+        "en": "Typical ioBroker admin settings page (jsonConfig) for all native options.",
+        "de": "Typische ioBroker-Admin-Einstellungsseite (jsonConfig) für alle Native-Optionen."
       },
       "0.9.0": {
-        "en": "Add habit learning phases and post-learning home automation optimization for OpenClaw agents",
-        "de": "Gewohnheitslernen mit Phasenmodell und anschließender Home-Automation-Optimierung für OpenClaw-Agenten"
-      },
-      "0.4.0": {
-        "en": "Add validatePlan dry-run checks and bounded context event history with getContextEvents",
-        "de": "validatePlan Dry-Run-Prüfung und begrenzte Kontext-Event-Historie mit getContextEvents ergänzt"
-      },
-      "0.3.0": {
-        "en": "Add conversational intent handling, context events, critical-action confirmation and PV surplus trigger",
-        "de": "Conversational Intent-Handling, Kontext-Events, Bestätigung für kritische Aktionen und PV-Überschuss-Trigger ergänzt"
-      },
-      "0.2.0": {
-        "en": "Add request correlation, structured errors, action whitelist, ACL checks, timeout handling, audit metrics and batch getStates",
-        "de": "Request-Korrelation, strukturierte Fehler, Action-Whitelist, ACL-Prüfungen, Timeout-Handling, Audit-Metriken und batch getStates ergänzt"
-      },
-      "0.1.0": {
-        "en": "Initial MVP bridge for ioBroker state read/write from OpenClaw workflows",
-        "de": "Initiales MVP-Bridge für ioBroker State-Read/Write aus OpenClaw-Workflows"
-      },
-      "0.5.0": {
-        "en": "Add operator help action, error nextAction guidance and setup/troubleshooting UX docs",
-        "de": "Operator-Hilfeaktion, nextAction-Fehlerhinweise und Setup/Troubleshooting-UX-Dokumentation ergänzt"
-      },
-      "0.6.0": {
-        "en": "Add batchSetStates, syncSnapshot, telemetry action, retry/backoff reliability and queue high-watermark protection",
-        "de": "batchSetStates, syncSnapshot, Telemetrie-Action, Retry/Backoff-Reliability und Queue-High-Watermark-Schutz ergänzt"
+        "en": "Habit learning phases and post-learning home automation optimization for OpenClaw agents.",
+        "de": "Gewohnheitslernen mit Phasenmodell und Home-Automation-Optimierung für OpenClaw-Agenten."
       },
       "0.8.0": {
-        "en": "Add Alexa speak action, local STT transcribe action and end-to-end voiceCommand routing with guardrails",
-        "de": "Alexa speak Action, lokale STT transcribe Action und End-to-End voiceCommand Routing mit Guardrails ergänzt"
+        "en": "Alexa speak, local STT transcribe and voiceCommand routing with guardrails.",
+        "de": "Alexa speak, lokale STT transcribe und voiceCommand-Routing mit Guardrails."
+      },
+      "0.6.0": {
+        "en": "batchSetStates, syncSnapshot, telemetry, retry/backoff and queue high-watermark.",
+        "de": "batchSetStates, syncSnapshot, Telemetrie, Retry/Backoff und Queue-High-Watermark."
+      },
+      "0.5.0": {
+        "en": "help action, nextAction error guidance and setup/troubleshooting docs.",
+        "de": "help-Action, nextAction-Fehlerhinweise und Setup-/Troubleshooting-Doku."
+      },
+      "0.4.0": {
+        "en": "validatePlan dry-run and bounded context event history (getContextEvents).",
+        "de": "validatePlan Dry-Run und begrenzte Kontext-Event-Historie (getContextEvents)."
+      },
+      "0.3.0": {
+        "en": "Conversational intents, context events, critical-action confirmation and PV surplus trigger.",
+        "de": "Conversational Intents, Kontext-Events, Bestätigung für kritische Aktionen und PV-Trigger."
+      },
+      "0.2.0": {
+        "en": "Request correlation, structured errors, action whitelist, ACL, timeouts and getStates.",
+        "de": "Request-Korrelation, strukturierte Fehler, Action-Whitelist, ACL, Timeouts und getStates."
+      },
+      "0.1.0": {
+        "en": "Initial MVP bridge for ioBroker state read/write from OpenClaw workflows.",
+        "de": "Initiales MVP: JSON-Commands von OpenClaw nach ioBroker States."
       }
     },
     "titleLang": {
