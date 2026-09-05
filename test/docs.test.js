@@ -113,6 +113,21 @@ test('adapter ships the operator handbook for Admin and common.docs', () => {
   assert.deepEqual(ioPackage.common.docs.en, ['docs/en/HANDBOOK.md']);
 });
 
+test('io-package ships instanceObjects including a writable command channel', () => {
+  assert.equal(ioPackage.objects, undefined);
+  assert.equal(Array.isArray(ioPackage.instanceObjects), true);
+  const command = ioPackage.instanceObjects.find((item) => item._id === 'control.command');
+  assert.ok(command, 'missing instanceObjects control.command');
+  assert.equal(command.common.write, true);
+  const required = ['control.lastResult', 'responses', 'info.lastError', 'info.lastUpdated'];
+  for (const id of required) {
+    assert.ok(
+      ioPackage.instanceObjects.some((item) => item._id === id),
+      `missing instanceObject ${id}`,
+    );
+  }
+});
+
 test('Guide tab embeds the handbook inside the instance, not only an external URL', () => {
   const config = JSON.parse(readDoc('admin/jsonConfig.json'));
   const items = config.items.tabGuide.items;

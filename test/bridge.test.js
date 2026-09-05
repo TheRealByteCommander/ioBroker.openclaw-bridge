@@ -197,6 +197,23 @@ test('handleIntent maps hot/cold comfort routes', async () => {
   assert.equal(cold.data.plan.operations[0].value, 22);
 });
 
+test('ensureRuntimeStates creates the OpenClaw command channel', async () => {
+  const adapter = new MockAdapter({});
+  const bridge = new BridgeRuntime(adapter, {});
+  await bridge.ensureRuntimeStates();
+
+  const command = adapter.objects.get('control.command');
+  assert.ok(command, 'control.command must exist after startup');
+  assert.equal(command.type, 'state');
+  assert.equal(command.common.write, true);
+  assert.equal(command.common.role, 'json');
+  assert.ok(adapter.objects.get('control.lastResult'));
+  assert.equal(adapter.objects.get('responses').type, 'channel');
+  assert.ok(adapter.objects.get('info.lastUpdated'));
+  assert.ok(adapter.objects.get('info.lastError'));
+  assert.ok(adapter.objects.get('habits.mode'));
+});
+
 test('help action returns capabilities', async () => {
   const adapter = new MockAdapter({});
   const bridge = new BridgeRuntime(adapter, {

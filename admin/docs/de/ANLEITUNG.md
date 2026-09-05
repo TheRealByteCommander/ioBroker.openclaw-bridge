@@ -1,6 +1,6 @@
 # OpenClaw-Bridge — Ausführliche Anleitung
 
-**Adapter:** `openclaw-bridge` · **Paket:** `iobroker.openclaw-bridge` · **Version:** 0.12.2
+**Adapter:** `openclaw-bridge` · **Paket:** `iobroker.openclaw-bridge` · **Version:** 0.12.3
 
 Diese Datei liegt **im Adapter** und ist dort lesbar:
 
@@ -40,7 +40,7 @@ OpenClaw soll **keine** Shelly-/Zigbee-States direkt schreiben. Alles läuft üb
 Das GitHub-Repo muss `ioBroker.openclaw-bridge` heißen, sonst findet `iobroker url` den Adapter nicht.
 
 ```bash
-iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.2
+iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.3
 iobroker add openclaw-bridge
 iobroker start openclaw-bridge.0
 ```

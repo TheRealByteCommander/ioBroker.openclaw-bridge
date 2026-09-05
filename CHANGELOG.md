@@ -2,6 +2,11 @@
 
 Alle nennenswerten Änderungen an `iobroker.openclaw-bridge`.
 
+## 0.12.3 — 2026-09-05
+
+- **Steuerkanal fehlt nach Upgrade:** `io-package.json` hatte die API-States unter `objects` statt `instanceObjects`. js-controller legt sie dann nicht unter `openclaw-bridge.0.*` an. `ensureRuntimeStates()` erzeugte nur `habits.*` / `guards` / `safety.lastGuardBlock`.
+- Beim Start werden jetzt alle Instanz-Objekte angelegt, inkl. `control.command` (schreibbar), `control.lastResult`, `responses`, `info.*`. Restart allein ohne dieses Update reicht nicht.
+
 ## 0.12.2 — 2026-09-05
 
 - **Anleitung in der Instanz:** Tab **Anleitung** zeigt die Handbuchseite (`ANLEITUNG.html` im iframe) plus denselben Inhalt als Text. Kein separates Browser-URL-Rätsel mehr. Admin-Doku liegt zusätzlich unter `admin/docs/`.

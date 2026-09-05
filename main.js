@@ -22,6 +22,13 @@ class OpenclawBridge extends utils.Adapter {
     this.bridge = new BridgeRuntime(this, this.config);
     await this.bridge.ensureRuntimeStates();
 
+    const commandObj = await this.getObjectAsync('control.command');
+    if (!commandObj) {
+      this.log.error('control.command fehlt nach ensureRuntimeStates — Instanz-Objekte wurden nicht angelegt');
+    } else {
+      this.log.info(`command channel ready: ${this.namespace}.control.command`);
+    }
+
     await this.subscribeStatesAsync('control.command');
     for (const prefix of this.bridge.config.habitWatchPrefixes) {
       await this.subscribeForeignStatesAsync(`${prefix}.*`);
