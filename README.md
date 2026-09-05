@@ -1,6 +1,6 @@
 # ioBroker OpenClaw Bridge
 
-**Version 0.12.2** — JSON-Bridge zwischen OpenClaw und ioBroker. OpenClaw lernt Gewohnheiten und steuert die Hausautomation **nur innerhalb der vom Operator gesetzten Rahmenbedingungen**.
+**Version 0.12.3** — JSON-Bridge zwischen OpenClaw und ioBroker. OpenClaw lernt Gewohnheiten und steuert die Hausautomation **nur innerhalb der vom Operator gesetzten Rahmenbedingungen**.
 
 **Anleitung im Adapter:** Instanz öffnen → Tab **Anleitung** (iframe + Volltext). Zusätzlich `/adapter/openclaw-bridge/ANLEITUNG.html` und [docs/de/ANLEITUNG.md](docs/de/ANLEITUNG.md).
 

@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.12.2",
+    "version": "0.12.3",
     "news": {
+      "0.12.3": {
+        "en": "Create the command channel at startup (control.command, responses, info). io-package uses instanceObjects so upgrades recreate the OpenClaw API states.",
+        "de": "Steuerkanal beim Start anlegen (control.command, responses, info). io-package nutzt instanceObjects, damit Upgrades die OpenClaw-API-States wiederherstellen."
+      },
       "0.12.2": {
         "en": "Guide tab shows the handbook in the instance (iframe + full text). Available version no longer sticks at 0.9.x: news only keeps 0.10+ keys so Admin string-compare cannot treat 0.9.0 as newer than 0.12.",
         "de": "Tab Anleitung zeigt die Anleitung in der Instanz (iframe + Volltext). Verfügbare Version bleibt nicht mehr bei 0.9.x: News nur noch 0.10+, damit Admins String-Vergleich 0.9.0 nicht für neuer als 0.12 hält."
@@ -18,10 +22,6 @@
       "0.11.0": {
         "en": "Numeric thresholds and per-load PV surplus switching (e.g. pool heating from 4000 W).",
         "de": "Zahlen-Schwellwerte und PV-Überschuss je Last (z. B. Poolheizung ab 4000 W)."
-      },
-      "0.10.0": {
-        "en": "Per-object AND/OR/XOR guards and max-on duration limits in the admin settings page.",
-        "de": "Objekt-Regeln mit AND/OR/XOR und maximaler Einschaltdauer in der Admin-Einstellungsseite."
       }
     },
     "titleLang": {
@@ -109,7 +109,7 @@
     "habitScenesJson": "",
     "guardRules": []
   },
-  "objects": [
+  "instanceObjects": [
     {
       "_id": "control.command",
       "type": "state",

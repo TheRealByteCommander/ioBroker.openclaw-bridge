@@ -1,6 +1,6 @@
 # OpenClaw-Bridge — Operator handbook
 
-**Adapter:** `openclaw-bridge` · **Package:** `iobroker.openclaw-bridge` · **Version:** 0.12.2
+**Adapter:** `openclaw-bridge` · **Package:** `iobroker.openclaw-bridge` · **Version:** 0.12.3
 
 The German original shipped in the adapter is `docs/de/ANLEITUNG.md` and `admin/ANLEITUNG.html`.
 
