@@ -1,6 +1,47 @@
 {
   "type": "tabs",
   "items": {
+    "tabGuide": {
+      "type": "panel",
+      "label": {
+        "en": "Guide",
+        "de": "Anleitung"
+      },
+      "items": {
+        "_guideTitle": {
+          "type": "header",
+          "text": {
+            "en": "OpenClaw-Bridge handbook (shipped with this adapter)",
+            "de": "OpenClaw-Bridge-Anleitung (liegt in diesem Adapter)"
+          },
+          "xs": 12
+        },
+        "_guideWhere": {
+          "type": "staticText",
+          "text": {
+            "en": "Full guide in the adapter: open /adapter/openclaw-bridge/ANLEITUNG.html on the Admin port (usually 8081), or Adapter info → Documentation. On disk: node_modules/iobroker.openclaw-bridge/docs/de/ANLEITUNG.md",
+            "de": "Vollständige Anleitung im Adapter: im Browser /adapter/openclaw-bridge/ANLEITUNG.html auf dem Admin-Port (meist 8081) öffnen, oder Adapter-Info → Dokumentation. Auf der Platte: node_modules/iobroker.openclaw-bridge/docs/de/ANLEITUNG.md"
+          },
+          "xs": 12
+        },
+        "_guideFlow": {
+          "type": "staticText",
+          "text": {
+            "en": "1) Start this instance. 2) Test without OpenClaw: write {\"action\":\"ping\",\"requestId\":\"test-1\"} to openclaw-bridge.0.control.command (ack=false), read responses.test-1. 3) Install simple-api, note Port (e.g. 8087). 4) From the OpenClaw host: curl GET /set/openclaw-bridge.0.control.command and /get/openclaw-bridge.0.responses.test-1. 5) Add an OpenClaw skill that ONLY writes control.command and starts with getConstraints. Never write Shelly/Zigbee states directly.",
+            "de": "1) Diese Instanz starten. 2) Test ohne OpenClaw: {\"action\":\"ping\",\"requestId\":\"test-1\"} nach openclaw-bridge.0.control.command schreiben (ack=false), responses.test-1 lesen. 3) simple-api installieren, Port notieren (z. B. 8087). 4) Von der OpenClaw-Maschine: curl GET /set/openclaw-bridge.0.control.command und /get/openclaw-bridge.0.responses.test-1. 5) OpenClaw-Skill anlegen, die NUR control.command beschreibt und mit getConstraints startet. Niemals Shelly/Zigbee direkt schreiben."
+          },
+          "xs": 12
+        },
+        "_guideSkill": {
+          "type": "staticText",
+          "text": {
+            "en": "simple-api example (port 8087): curl -G http://<iobroker-ip>:8087/set/openclaw-bridge.0.control.command --data-urlencode 'value={\"action\":\"ping\",\"requestId\":\"oc-1\"}' then GET http://<iobroker-ip>:8087/get/openclaw-bridge.0.responses.oc-1. Dry-run: {\"action\":\"handleIntent\",\"text\":\"mir ist kalt\",\"execute\":false}. Agent loop: getConstraints → planWithinBounds → execute only allowed.",
+            "de": "simple-api-Beispiel (Port 8087): curl -G http://<iobroker-ip>:8087/set/openclaw-bridge.0.control.command --data-urlencode 'value={\"action\":\"ping\",\"requestId\":\"oc-1\"}' danach GET http://<iobroker-ip>:8087/get/openclaw-bridge.0.responses.oc-1. Dry-Run: {\"action\":\"handleIntent\",\"text\":\"mir ist kalt\",\"execute\":false}. Agent-Loop: getConstraints → planWithinBounds → nur allowed ausführen."
+          },
+          "xs": 12
+        }
+      }
+    },
     "tabSecurity": {
       "type": "panel",
       "label": {

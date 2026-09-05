@@ -1,6 +1,8 @@
-# Dokumentation — openclaw-bridge 0.12.0
+# Dokumentation — openclaw-bridge 0.12.1
 
-Aktueller Stand nach [Release v0.12.0](https://github.com/TheRealByteCommander/ioBroker/releases/tag/v0.12.0). Einstieg: [../README.md](../README.md).
+Aktueller Stand nach [Release v0.12.0](https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge/releases/tag/v0.12.0) plus Anleitung 0.12.1. Einstieg: [../README.md](../README.md).
+
+**Im Adapter:** [de/ANLEITUNG.md](de/ANLEITUNG.md) · [en/HANDBOOK.md](en/HANDBOOK.md) · `admin/ANLEITUNG.html`
 
 ## Operator
 

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenClaw-Bridge Anleitung</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, sans-serif; max-width: 880px; margin: 2rem auto; padding: 0 1.2rem 4rem; line-height: 1.5; }
+  h1 { font-size: 1.7rem; }
+  h2 { margin-top: 2rem; border-bottom: 1px solid #8883; padding-bottom: .3rem; }
+  code { font-family: ui-monospace, monospace; font-size: .92em; }
+  pre { background: #1112; padding: 0.9rem 1rem; overflow: auto; border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #8885; padding: .4rem .55rem; text-align: left; vertical-align: top; }
+  th { background: #8882; }
+  hr { border: none; border-top: 1px solid #8884; margin: 2rem 0; }
+</style>
+</head>
+<body>
+<h1>OpenClaw-Bridge — Ausführliche Anleitung</h1>
+<p><strong>Adapter:</strong> <code>openclaw-bridge</code> · <strong>Paket:</strong> <code>iobroker.openclaw-bridge</code> · <strong>Version:</strong> 0.12.1</p>
+<p>Diese Datei liegt <strong>im Adapter</strong>:</p>
+<ul>
+<li>ioBroker-Admin → Instanz <code>openclaw-bridge.0</code> → Tab <strong>Anleitung</strong></li>
+<li>Browser: <code>http://&lt;iobroker-ip&gt;:8081/adapter/openclaw-bridge/ANLEITUNG.html</code></li>
+<li>Adapter-Info → Dokumentation (<code>docs/de/ANLEITUNG.md</code>)</li>
+<li>Auf dem Host: <code>node_modules/iobroker.openclaw-bridge/docs/de/ANLEITUNG.md</code></li>
+</ul>
+<hr/>
+<h2>1. Was dieser Adapter ist</h2>
+<p>Die Bridge ist die <strong>einzige erlaubte Schnittstelle</strong> zwischen OpenClaw und deiner Hausautomation. OpenClaw entscheidet *was sinnvoll ist*. Die Bridge erzwingt *was erlaubt ist*.</p>
+<pre><code>Mensch  →  OpenClaw (Dialog)
+              │
+              │  JSON über simple-api :8087
+              ▼
+         openclaw-bridge.0.control.command
+              │
+              ├─ Prefix-ACL, Action-Whitelist
+              ├─ Confirmation (kritische Prefixe)
+              ├─ Regeln (AND/OR/XOR, Watt, max. Ein)
+              └─ nur erlaubte Writes nach ioBroker
+              │
+              ▼
+         Geräte, Szenen, Frigate-States, PV, …</code></pre>
+<p>OpenClaw soll <strong>keine</strong> Shelly-/Zigbee-States direkt schreiben. Alles läuft über <code>control.command</code>. Sonst greifen Regeln und Rahmenbedingungen nicht.</p>
+<hr/>
+<h2>2. Installation des Adapters</h2>
+<p>Das GitHub-Repo muss <code>ioBroker.openclaw-bridge</code> heißen, sonst findet <code>iobroker url</code> den Adapter nicht.</p>
+<pre><code>iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.1
+iobroker add openclaw-bridge
+iobroker start openclaw-bridge.0</code></pre>
+<p>Ältere Installation ohne Versions-Tag:</p>
+<pre><code>iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge</code></pre>
+<p>Nach einem Update:</p>
+<pre><code>iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge
+iobroker upload openclaw-bridge
+iobroker restart openclaw-bridge.0</code></pre>
+<p>Die Instanz erscheint unter <strong>Instanzen</strong>. Über das Schraubenschlüssel-Symbol öffnest du die Einstellungsseite (Tabs).</p>
+<hr/>
+<h2>3. Einstellungsseite (Tabs)</h2>
+<h3>Sicherheit</h3>
+<table>
+<tr><th>Feld</th><th>Zweck</th></tr>
+<tr><td>Erlaubte Prefixe</td><td>Nur diese Namensräume darf der Agent lesen/schreiben, z. B. <code>0_userdata.0</code>, <code>javascript.0</code>, <code>alexa2.0</code>, später <code>frigate.0</code></td></tr>
+<tr><td>Erlaubte Actions</td><td>Whitelist der JSON-Actions. <code>getConstraints</code> und <code>planWithinBounds</code> müssen enthalten sein, wenn der Agent planen soll</td></tr>
+<tr><td>Kritische Prefixe</td><td>Writes brauchen <code>confirmation: true</code> (Default <code>system.</code>, <code>admin.0</code>)</td></tr>
+<tr><td>Actions mit Bestätigung</td><td>z. B. <code>executePlan</code></td></tr>
+<tr><td>ack=true erlauben</td><td>Normalerweise an; Geräte-Feedback nicht vom Agenten fälschen lassen, wenn du unsicher bist</td></tr>
+</table>
+<p><strong>Tipp:</strong> Prefixe zuerst eng (<code>0_userdata.0</code>). Erst erweitern, wenn ein konkreter State blockiert wird (<code>EIDFORBIDDEN</code>).</p>
+<h3>Regeln (Rahmenbedingungen)</h3>
+<p>Das ist der <strong>Spielraum</strong> des Agenten, kein nachträglicher Riegel.</p>
+<p>Beispiele:</p>
+<ul>
+<li>Brunnenpumpe nur, wenn mindestens ein Ventil offen ist (<code>OR</code>, Bedingungs-IDs)</li>
+<li>Steckdose maximal 60 Minuten ein</li>
+<li>Poolheizung erst ab ≥ 4000 W (<code>Schwellwert-State</code> + Op <code>&gt;=</code> + Wert)</li>
+</ul>
+<p>Schwellwerte werden <strong>zusätzlich per AND</strong> zur Kombinator-Logik geprüft. Ventil und Pumpe dürfen im <strong>selben Plan</strong> stehen — die Bridge schaltet Bedingungen zuerst.</p>
+<h3>Geräte</h3>
+<p>Komfort-Temperatur für „mir ist kalt/heiß“, PV-Leistungs-State, Tabelle der Überschuss-Lasten (Ein ab W / Aus unter W).</p>
+<h3>Gewohnheiten</h3>
+<p>Default-Mode <code>observe</code>: nur lernen. Wechsel nach <code>autonomous</code> nur mit <code>confirmation: true</code> und erfüllten Schwellen.</p>
+<h3>Sprache / Erweitert</h3>
+<p>Alexa-Speak-State, lokale STT, Timeouts, Retry, Queue. Nur bei Bedarf ändern.</p>
+<hr/>
+<h2>4. Wichtige States</h2>
+<p>Instanz-Präfix: <code>openclaw-bridge.0.</code></p>
+<table>
+<tr><th>State</th><th>Richtung</th><th>Bedeutung</th></tr>
+<tr><td><code>control.command</code></td><td><strong>schreiben</strong></td><td>JSON-Command von OpenClaw oder Test</td></tr>
+<tr><td><code>control.lastResult</code></td><td>lesen</td><td>letzte Antwort</td></tr>
+<tr><td><code>responses.&lt;requestId&gt;</code></td><td>lesen</td><td>Antwort zu genau diesem Request</td></tr>
+<tr><td><code>intents.lastPlan</code></td><td>lesen</td><td>letzter Intent-Plan</td></tr>
+<tr><td><code>safety.pendingConfirmation</code></td><td>lesen</td><td>kritische Aktion wartet</td></tr>
+<tr><td><code>safety.lastGuardBlock</code></td><td>lesen</td><td>letzte Regel-Sperre inkl. Hint</td></tr>
+<tr><td><code>guards.runtime</code></td><td>lesen</td><td>Ein-/Aus-Zeiten für Dauerregeln</td></tr>
+<tr><td><code>habits.mode</code></td><td>lesen</td><td><code>observe</code> / <code>suggest</code> / <code>autonomous</code></td></tr>
+<tr><td><code>habits.learningStatus</code></td><td>lesen</td><td>Lernfortschritt</td></tr>
+<tr><td><code>info.successCount</code> / <code>info.lastError</code></td><td>lesen</td><td>Audit</td></tr>
+</table>
+<p><code>control.command</code> immer mit <strong>ack = false</strong> schreiben. Der Adapter verarbeitet nur unbestätigte Commands.</p>
+<hr/>
+<h2>5. Test ohne OpenClaw (im ioBroker)</h2>
+<p>Damit prüfst du die Bridge, bevor der Agent verbunden wird.</p>
+<h3>5.1 Über Objekte</h3>
+<p>1. <strong>Objekte</strong> → <code>openclaw-bridge.0.control.command</code></p>
+<p>2. Diesen Wert setzen (ack aus):</p>
+<pre><code>{"action":"ping","requestId":"test-1"}</code></pre>
+<p>3. Lesen: <code>openclaw-bridge.0.responses.test-1</code> oder <code>control.lastResult</code></p>
+<p>Erwartet: <code>"ok": true</code>, <code>"data": { "pong": true, ... }</code>.</p>
+<p>Weitere Tests:</p>
+<pre><code>{"action":"help","requestId":"test-2"}</code></pre>
+<pre><code>{"action":"getConstraints","requestId":"test-3"}</code></pre>
+<pre><code>{"action":"handleIntent","text":"mir ist kalt","execute":false,"requestId":"test-4"}</code></pre>
+<p><code>execute: false</code> schreibt <strong>keine</strong> Geräte.</p>
+<h3>5.2 Über simple-api (wie OpenClaw)</h3>
+<p>simple-api muss laufen. Port: Instanz <strong>simple-api.0</strong> → Schraubenschlüssel → Feld <strong>Port</strong> (bei dir <strong>8087</strong>).</p>
+<p>Vom ioBroker-Host:</p>
+<pre><code>curl -sS -G "http://127.0.0.1:8087/set/openclaw-bridge.0.control.command" \
+  --data-urlencode 'value={"action":"ping","requestId":"test-1"}'
+
+curl -sS "http://127.0.0.1:8087/get/openclaw-bridge.0.responses.test-1"</code></pre>
+<p>Von einem anderen Rechner im LAN <code>127.0.0.1</code> durch die ioBroker-IP ersetzen.  </p>
+<p>simple-api darf nicht nur auf <code>127.0.0.1</code> gebunden sein, wenn OpenClaw auf einem anderen Host läuft.</p>
+<hr/>
+<h2>6. OpenClaw anbinden</h2>
+<p>Die Bridge hat <strong>kein eigenes HTTP</strong>. OpenClaw erreicht sie nur so:</p>
+<pre><code>OpenClaw  --HTTP GET--&gt;  simple-api :8087  --&gt;  control.command
+OpenClaw  &lt;--HTTP GET--  simple-api :8087  &lt;--  responses.&lt;requestId&gt;</code></pre>
+<h3>6.1 Voraussetzungen</h3>
+<p>1. <code>openclaw-bridge.0</code> läuft, <code>ping</code> über Objekte ist grün.</p>
+<p>2. <code>simple-api.0</code> läuft, Port <strong>8087</strong>.</p>
+<p>3. OpenClaw kann <code>http://&lt;iobroker-ip&gt;:8087</code> erreichen (gleiche Maschine: <code>127.0.0.1</code>).</p>
+<p>4. simple-api nicht ins Internet öffnen. Nur LAN oder VPN.</p>
+<h3>6.2 Verbindungstest von der OpenClaw-Maschine</h3>
+<pre><code>curl -sS -G "http://&lt;iobroker-ip&gt;:8087/set/openclaw-bridge.0.control.command" \
+  --data-urlencode 'value={"action":"ping","requestId":"oc-1"}'
+
+curl -sS "http://&lt;iobroker-ip&gt;:8087/get/openclaw-bridge.0.responses.oc-1"</code></pre>
+<p>Kommt <code>pong</code>, ist der Kanal offen.</p>
+<h3>6.3 OpenClaw-Skill</h3>
+<p>Lege im OpenClaw-Workspace eine Skill an, z. B.</p>
+<p><code>~/.openclaw/workspace/skills/iobroker-bridge/SKILL.md</code></p>
+<pre><code>---
+name: iobroker-bridge
+description: Steuert das Haus nur über die ioBroker OpenClaw-Bridge.
+---
+
+# ioBroker OpenClaw-Bridge
+
+Base-URL: http://&lt;iobroker-ip&gt;:8087
+
+Schreibe ausschließlich nach:
+  openclaw-bridge.0.control.command
+
+Lies die Antwort aus:
+  openclaw-bridge.0.responses.&lt;requestId&gt;
+Fallback:
+  openclaw-bridge.0.control.lastResult
+
+Niemals Shelly-, Zigbee- oder system.-States direkt setzen.
+
+Ablauf jedes Steuerwunsches:
+1. requestId erzeugen (z. B. UUID)
+2. GET /set/openclaw-bridge.0.control.command?value=&lt;JSON&gt;
+3. kurz warten, dann GET /get/openclaw-bridge.0.responses.&lt;requestId&gt;
+4. Bei ok:false die Felder error.code, error.nextAction, error.hint befolgen
+
+Pflicht-Reihenfolge:
+- Zuerst {"action":"getConstraints"}
+- Dann planWithinBounds oder handleIntent mit execute=false
+- Nur Operationen aus allowed ausführen
+- Kritische Writes nur mit "confirmation": true
+
+Beispiele:
+{"action":"ping"}
+{"action":"help"}
+{"action":"getConstraints"}
+{"action":"handleIntent","text":"gute nacht","execute":false}
+{"action":"handleIntent","text":"gute nacht","execute":true,"confirmation":true}</code></pre>
+<p>Skill laden, OpenClaw neu starten. Im Chat testen: „Schick einen ping an die ioBroker-Bridge.“</p>
+<h3>6.4 Empfohlener Agent-Loop</h3>
+<table>
+<tr><th>Schritt</th><th>Action</th><th>Zweck</th></tr>
+<tr><td>1</td><td><code>ping</code> / <code>help</code></td><td>Verbindung und erlaubte Actions</td></tr>
+<tr><td>2</td><td><code>getConstraints</code></td><td>Was *jetzt* erlaubt ist (Envelope)</td></tr>
+<tr><td>3</td><td><code>planWithinBounds</code> oder <code>handleIntent</code> (<code>execute: false</code>)</td><td>Plan in allowed/blocked teilen</td></tr>
+<tr><td>4</td><td>Ausführen</td><td>nur <code>allowed</code>; Hints bei <code>blocked</code> (Ventil öffnen, auf PV warten)</td></tr>
+<tr><td>5</td><td><code>recordObservation</code></td><td>Lernen</td></tr>
+<tr><td>6</td><td><code>getLearningStatus</code></td><td>Reife prüfen</td></tr>
+<tr><td>7</td><td><code>optimizeHome</code></td><td>nach der Lernphase, weiter nur innerhalb der Grenzen</td></tr>
+</table>
+<hr/>
+<h2>7. Actions (Kurzüberblick)</h2>
+<p>Vollständige Liste: <code>docs/ACTIONS.md</code> im Adapterpaket.</p>
+<table>
+<tr><th>Gruppe</th><th>Actions</th></tr>
+<tr><td>Leben</td><td><code>ping</code>, <code>help</code></td></tr>
+<tr><td>Lesen</td><td><code>getState</code>, <code>getStates</code>, <code>listStates</code>, <code>syncSnapshot</code></td></tr>
+<tr><td>Schreiben</td><td><code>setState</code>, <code>executePlan</code>, <code>batchSetStates</code></td></tr>
+<tr><td>Dialog</td><td><code>handleIntent</code>, <code>validatePlan</code></td></tr>
+<tr><td>Envelope</td><td><code>getConstraints</code>, <code>planWithinBounds</code>, <code>checkGuards</code></td></tr>
+<tr><td>Lernen</td><td><code>recordObservation</code>, <code>getHabits</code>, <code>getLearningStatus</code>, <code>setHabitMode</code>, <code>evaluateHabits</code>, <code>suggestAutomation</code>, <code>applyHabit</code>, <code>optimizeHome</code></td></tr>
+<tr><td>Energie</td><td><code>handlePvSurplus</code></td></tr>
+<tr><td>Kontext</td><td><code>emitContextEvent</code>, <code>getContextEvents</code></td></tr>
+<tr><td>Telemetrie</td><td><code>getTelemetry</code></td></tr>
+<tr><td>Sprache</td><td><code>speak</code>, <code>transcribe</code>, <code>voiceCommand</code></td></tr>
+</table>
+<p>Jede Action muss in <strong>Erlaubte Actions</strong> stehen.</p>
+<hr/>
+<h2>8. Fehlercodes</h2>
+<p>Die Antwort hat immer <code>ok</code>, <code>requestId</code>, <code>action</code>, <code>data</code> oder <code>error</code> (<code>code</code>, <code>message</code>, <code>details</code>, <code>nextAction</code>, oft <code>hint</code>).</p>
+<table>
+<tr><th>Code</th><th>Bedeutung</th><th>Nächster Schritt</th></tr>
+<tr><td><code>EACTIONFORBIDDEN</code></td><td>Action nicht auf der Whitelist</td><td>Action oder Tab Sicherheit</td></tr>
+<tr><td><code>EIDFORBIDDEN</code></td><td>State außerhalb der Prefixe</td><td>Prefix erweitern oder andere ID</td></tr>
+<tr><td><code>ECONFIRMREQUIRED</code></td><td>kritische Aktion</td><td>mit <code>confirmation: true</code> wiederholen</td></tr>
+<tr><td><code>EGUARDFAILED</code></td><td>AND/OR/XOR nicht erfüllt</td><td><code>hint.companions</code> in denselben Plan</td></tr>
+<tr><td><code>ETHRESHOLD</code></td><td>Watt/Zahl zu niedrig</td><td>warten, <code>hint.deficit</code></td></tr>
+<tr><td><code>EDURATIONLIMIT</code></td><td>zu lange ein</td><td>aus oder Limit erhöhen</td></tr>
+<tr><td><code>ECOOLDOWN</code></td><td>Mindest-Aus läuft</td><td>warten</td></tr>
+<tr><td><code>ENOTREADY</code></td><td>noch nicht gelernt</td><td>weiter beobachten</td></tr>
+<tr><td><code>EHABITNOTFOUND</code></td><td>unbekannter Habit-Name</td><td><code>getHabits</code></td></tr>
+<tr><td><code>EQUEUEFULL</code></td><td>zu viele Commands</td><td>später retry</td></tr>
+<tr><td><code>ETIMEOUT</code></td><td>Adapter zu langsam</td><td>Last / Timeout</td></tr>
+<tr><td><code>EBADJSON</code></td><td>kein gültiges JSON</td><td>Payload prüfen</td></tr>
+</table>
+<hr/>
+<h2>9. Sicherheit</h2>
+<ul>
+<li>simple-api nur im LAN oder hinter Authentifizierung.</li>
+<li>Prefixe und Actions eng halten.</li>
+<li><code>system.</code> und <code>admin.0</code> kritisch lassen.</li>
+<li>OpenClaw bekommt keinen direkten Schreibweg an Geräte-Adapter.</li>
+<li>Kameras (Frigate): Erkennung bleibt in Frigate. Die Bridge liest nur States, wenn <code>frigate.0</code> in den erlaubten Prefixen steht.</li>
+</ul>
+<hr/>
+<h2>10. Checkliste „OpenClaw ist verbunden“</h2>
+<p>1. <code>openclaw-bridge.0</code> läuft  </p>
+<p>2. Objekte-<code>ping</code> → <code>ok</code>  </p>
+<p>3. simple-api Port 8087, von der OpenClaw-Maschine erreichbar  </p>
+<p>4. <code>curl</code>-<code>ping</code> über :8087 → <code>pong</code>  </p>
+<p>5. Skill mit Base-URL und „nur control.command“  </p>
+<p>6. Chat: „ping die Bridge“ → <code>ok</code>  </p>
+<p>7. Chat: „was sind die aktuellen Rahmenbedingungen?“ → <code>getConstraints</code></p>
+<p>Wenn Schritt 2 scheitert, liegt es an der Bridge. Wenn 2 geht und 4 nicht, liegt es an simple-api/Netz. Wenn 4 geht und 6 nicht, liegt es an der Skill.</p>
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 ## Status
 
-- Version: **0.12.0**
+- Version: **0.12.1**
 - Engineering: GREEN
 - Test suite: GREEN (`npm test` — 55/55)
 - P1 blockers: none
