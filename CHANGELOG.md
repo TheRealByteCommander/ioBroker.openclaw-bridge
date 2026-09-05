@@ -2,6 +2,10 @@
 
 Alle nennenswerten Änderungen an `iobroker.openclaw-bridge`.
 
+## 0.12.5 — 2026-09-05
+
+- Admin-Update-Hinweis: eine **neuere** Version im Repository bleibt stehen (Update sichtbar). Nur älterer Cache (z. B. 0.9.0) wird auf die installierte Version gezogen.
+
 ## 0.12.4 — 2026-09-05
 
 - **Verfügbare Version 0.9.0:** Admin liest „verfügbar“ aus `system.repositories`, nicht aus dem GitHub-Paket. Der Adapter ist nicht im offiziellen ioBroker-Repo und nicht auf npm — ein alter Cache-Eintrag 0.9.0 bleibt stehen. Beim Start wird dieser Eintrag auf die installierte Version gesetzt. Zusätzlich liegt `sources-dist.json` im Repo (eigenes Admin-Repository).

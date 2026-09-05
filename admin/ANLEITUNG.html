@@ -19,7 +19,7 @@
 </head>
 <body>
 <h1>OpenClaw-Bridge — Ausführliche Anleitung</h1>
-<p><strong>Adapter:</strong> <code>openclaw-bridge</code> · <strong>Paket:</strong> <code>iobroker.openclaw-bridge</code> · <strong>Version:</strong> 0.12.4</p>
+<p><strong>Adapter:</strong> <code>openclaw-bridge</code> · <strong>Paket:</strong> <code>iobroker.openclaw-bridge</code> · <strong>Version:</strong> 0.12.5</p>
 <p>Diese Datei liegt <strong>im Adapter</strong> und ist dort lesbar:</p>
 <ul>
 <li>ioBroker-Admin → Instanz <code>openclaw-bridge.0</code> → Schraubenschlüssel → Tab <strong>Anleitung</strong> (diese Seite im iframe plus Text)</li>
@@ -47,7 +47,7 @@
 <hr/>
 <h2>2. Installation des Adapters</h2>
 <p>Das GitHub-Repo muss <code>ioBroker.openclaw-bridge</code> heißen, sonst findet <code>iobroker url</code> den Adapter nicht.</p>
-<pre><code>iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.4
+<pre><code>iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.5
 iobroker add openclaw-bridge
 iobroker start openclaw-bridge.0</code></pre>
 <p>Ältere Installation ohne Versions-Tag:</p>
@@ -57,7 +57,7 @@ iobroker start openclaw-bridge.0</code></pre>
 iobroker upload openclaw-bridge
 iobroker restart openclaw-bridge.0</code></pre>
 <p>Die Instanz erscheint unter <strong>Instanzen</strong>. Über das Schraubenschlüssel-Symbol öffnest du die Einstellungsseite (Tabs).</p>
-<p><strong>„Verfügbare Version 0.9.0“</strong> in der Adapterliste ist der Admin-Repo-Cache, nicht die echte Version. Der Adapter ist nicht im offiziellen ioBroker-Store. Ab 0.12.4 setzt die Instanz den Cache beim Start auf die installierte Version. Optional eigenes Repo:</p>
+<p><strong>„Verfügbare Version 0.9.0“</strong> war der Admin-Repo-Cache. Die Instanz überschreibt nur <em>ältere</em> Cache-Werte. Eine <em>neuere</em> Version aus dem eigenen Repo bleibt — dann siehst du in der Adapterkachel ein Update. Optional eigenes Repo:</p>
 <pre><code>https://raw.githubusercontent.com/TheRealByteCommander/ioBroker.openclaw-bridge/master/sources-dist.json</code></pre>
 <hr/>
 <h2>3. Einstellungsseite (Tabs)</h2>

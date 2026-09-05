@@ -1,4 +1,4 @@
-# Dokumentation — openclaw-bridge 0.12.4
+# Dokumentation — openclaw-bridge 0.12.5
 
 Aktueller Stand 0.12.3 (Steuerkanal beim Start). Einstieg: [../README.md](../README.md).
 
