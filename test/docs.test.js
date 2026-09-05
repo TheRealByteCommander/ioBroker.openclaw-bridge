@@ -14,8 +14,36 @@ function readDoc(rel) {
   return fs.readFileSync(path.join(root, rel), 'utf8');
 }
 
+function parseSemver(value) {
+  const parts = String(value).split('.').map((item) => Number(item));
+  assert.equal(parts.length >= 2 && parts.every((n) => Number.isFinite(n)), true, `invalid version ${value}`);
+  return parts;
+}
+
+function cmpSemver(a, b) {
+  const left = parseSemver(a);
+  const right = parseSemver(b);
+  const n = Math.max(left.length, right.length);
+  for (let i = 0; i < n; i += 1) {
+    const d = (left[i] || 0) - (right[i] || 0);
+    if (d !== 0) return d;
+  }
+  return 0;
+}
+
 test('package.json and io-package.json versions match', () => {
   assert.equal(pkg.version, ioPackage.common.version);
+});
+
+test('common.news starts at the current version and is newest-first', () => {
+  const keys = Object.keys(ioPackage.common.news);
+  assert.equal(keys[0], ioPackage.common.version);
+  for (let i = 1; i < keys.length; i += 1) {
+    assert.ok(
+      cmpSemver(keys[i - 1], keys[i]) > 0,
+      `news must be descending semver, got ${keys[i - 1]} then ${keys[i]}`,
+    );
+  }
 });
 
 test('changelog and README document the current version', () => {

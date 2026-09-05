@@ -4,7 +4,7 @@ Alle nennenswerten Änderungen an `iobroker.openclaw-bridge`.
 
 ## 0.12.1 — 2026-09-05
 
-Ausführliche Operator-Anleitung liegt **im Adapter**: Tab **Anleitung**, `admin/ANLEITUNG.html`, `docs/de/ANLEITUNG.md` (ioBroker `common.docs`). Enthält Installation, Tests ohne OpenClaw, simple-api :8087 und OpenClaw-Skill.
+Ausführliche Operator-Anleitung liegt **im Adapter**: Tab **Anleitung**, `admin/ANLEITUNG.html`, `docs/de/ANLEITUNG.md` (ioBroker `common.docs`). Enthält Installation, Tests ohne OpenClaw, simple-api :8087 und OpenClaw-Skill. `common.news` ist semver-absteigend (0.12.1 … 0.1.0), damit Admin nicht 0.9.0 als „verfügbar“ anzeigt.
 
 ## 0.12.0 — 2026-09-02
 
