@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.12.4",
+    "version": "0.12.5",
     "news": {
+      "0.12.5": {
+        "en": "Keep a newer repository version in Admin so an update is visible; only overwrite stale older cache (e.g. 0.9.0).",
+        "de": "Neuere Repository-Version in Admin behalten, damit ein Update sichtbar bleibt; nur veralteten älteren Cache (z. B. 0.9.0) überschreiben."
+      },
       "0.12.4": {
         "en": "Admin available version: overwrite stale repo cache (e.g. 0.9.0) on start and ship sources-dist.json for a custom repository.",
         "de": "Admin verfügbare Version: veralteten Repo-Cache (z. B. 0.9.0) beim Start überschreiben und sources-dist.json für ein eigenes Repository mitliefern."
@@ -18,10 +22,6 @@
       "0.12.1": {
         "en": "In-adapter handbook (Guide tab, ANLEITUNG.html). Current release: operating envelope, habit learning, object rules, PV thresholds. Version news are listed newest-first so Admin matches the installed version.",
         "de": "Anleitung im Adapter (Tab Anleitung, ANLEITUNG.html). Aktueller Stand: Rahmenbedingungen, Gewohnheiten, Objekt-Regeln, PV-Schwellwerte. Versionshinweise stehen neueste zuerst, damit Admin zur installierten Version passt."
-      },
-      "0.12.0": {
-        "en": "Operating envelope: OpenClaw plans only within ACL, AND/OR/XOR, thresholds and max on-time (getConstraints, planWithinBounds).",
-        "de": "Rahmenbedingungen: OpenClaw plant nur innerhalb von ACL, AND/OR/XOR, Schwellwerten und max. Einschaltdauer (getConstraints, planWithinBounds)."
       }
     },
     "titleLang": {

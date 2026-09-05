@@ -4,7 +4,12 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const ioPackage = require('../io-package.json');
-const { currentVersion, repoSources, syncAdminAvailableVersion } = require('../lib/adminVersion');
+const {
+  currentVersion,
+  repoSources,
+  shouldReplaceRepoVersion,
+  syncAdminAvailableVersion,
+} = require('../lib/adminVersion');
 
 class MockAdapter {
   constructor() {
@@ -67,6 +72,39 @@ test('syncAdminAvailableVersion updates stale adapter object and repo cache', as
   assert.equal(
     adapter.objects.get('system.repositories').native.repositories.latest.json.admin.version,
     '7.0.0',
+  );
+});
+
+test('shouldReplaceRepoVersion keeps a newer available version', () => {
+  assert.equal(shouldReplaceRepoVersion('0.9.0', '0.12.4'), true);
+  assert.equal(shouldReplaceRepoVersion('0.12.4', '0.12.4'), false);
+  assert.equal(shouldReplaceRepoVersion('0.13.0', '0.12.4'), false);
+  assert.equal(shouldReplaceRepoVersion('0.12.5+abc', '0.12.4'), false);
+});
+
+test('syncAdminAvailableVersion keeps a newer repo version so Admin can offer an update', async () => {
+  const adapter = new MockAdapter();
+  adapter.objects.set('system.adapter.openclaw-bridge', {
+    common: { version: ioPackage.common.version },
+    native: {},
+  });
+  adapter.objects.set('system.repositories', {
+    native: {
+      repositories: {
+        openclaw: {
+          json: {
+            'openclaw-bridge': { version: '9.9.9', type: 'misc-data' },
+          },
+        },
+      },
+    },
+  });
+
+  const log = await syncAdminAvailableVersion(adapter);
+  assert.deepEqual(log, []);
+  assert.equal(
+    adapter.objects.get('system.repositories').native.repositories.openclaw.json['openclaw-bridge'].version,
+    '9.9.9',
   );
 });
 

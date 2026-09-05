@@ -1,6 +1,6 @@
 # OpenClaw-Bridge — Operator handbook
 
-**Adapter:** `openclaw-bridge` · **Package:** `iobroker.openclaw-bridge` · **Version:** 0.12.4
+**Adapter:** `openclaw-bridge` · **Package:** `iobroker.openclaw-bridge` · **Version:** 0.12.5
 
 The German original shipped in the adapter is `docs/de/ANLEITUNG.md` and `admin/ANLEITUNG.html`.
 
@@ -20,7 +20,7 @@ iobroker start openclaw-bridge.0
 
 The GitHub repo name must be `ioBroker.openclaw-bridge` so `iobroker url` can detect the adapter.
 
-Admin **Available version 0.9.0** is a stale repository cache (this adapter is not in the official store). 0.12.4 overwrites that cache on start. Optional custom repo: `sources-dist.json` on GitHub master.
+Admin **Available version 0.9.0** was a stale repository cache. The instance only overwrites *older* cache entries; a *newer* custom-repo version stays so Admin can show an update. Add `sources-dist.json` as a custom repository to see new releases in the adapter tile.
 
 ## Test without OpenClaw
 

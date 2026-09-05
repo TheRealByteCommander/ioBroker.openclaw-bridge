@@ -1,6 +1,6 @@
 # OpenClaw-Bridge — Ausführliche Anleitung
 
-**Adapter:** `openclaw-bridge` · **Paket:** `iobroker.openclaw-bridge` · **Version:** 0.12.4
+**Adapter:** `openclaw-bridge` · **Paket:** `iobroker.openclaw-bridge` · **Version:** 0.12.5
 
 Diese Datei liegt **im Adapter** und ist dort lesbar:
 
@@ -40,7 +40,7 @@ OpenClaw soll **keine** Shelly-/Zigbee-States direkt schreiben. Alles läuft üb
 Das GitHub-Repo muss `ioBroker.openclaw-bridge` heißen, sonst findet `iobroker url` den Adapter nicht.
 
 ```bash
-iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.4
+iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.5
 iobroker add openclaw-bridge
 iobroker start openclaw-bridge.0
 ```
@@ -61,11 +61,13 @@ iobroker restart openclaw-bridge.0
 
 Die Instanz erscheint unter **Instanzen**. Über das Schraubenschlüssel-Symbol öffnest du die Einstellungsseite (Tabs).
 
-**„Verfügbare Version 0.9.0“** in der Adapterliste ist der Admin-Repo-Cache, nicht die echte Version. Der Adapter ist nicht im offiziellen ioBroker-Store. Ab 0.12.4 setzt die Instanz den Cache beim Start auf die installierte Version. Zusätzlich kannst du unter Einstellungen → Repositories diese URL als eigenes Repo eintragen und die Liste aktualisieren:
+**„Verfügbare Version 0.9.0“** war der Admin-Repo-Cache. Der Adapter ist nicht im offiziellen Store. Die Instanz überschreibt nur *ältere* Cache-Werte. Eine *neuere* Version aus dem eigenen Repo bleibt — dann siehst du in der Adapterkachel ein Update.
+
+Eigenes Repo (Einstellungen → Repositories), danach Adapterliste aktualisieren:
 
 `https://raw.githubusercontent.com/TheRealByteCommander/ioBroker.openclaw-bridge/master/sources-dist.json`
 
-Installiert von GitHub erscheint als `0.12.4+<commit>` (GitHub-Icon). Das ist normal.
+Ohne dieses Repo zeigt Admin kein Store-Update; neue Versionen kommen per GitHub-Tag und `iobroker url …#vX.Y.Z`. Installiert von GitHub erscheint als `0.12.5+<commit>` (GitHub-Icon). Das ist normal.
 
 ---
 
