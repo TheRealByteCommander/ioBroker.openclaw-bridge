@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const utils = require('@iobroker/adapter-core');
 const { BridgeRuntime } = require('./lib/bridge');
+const { syncAdminAvailableVersion } = require('./lib/adminVersion');
 
 class OpenclawBridge extends utils.Adapter {
   constructor(options = {}) {
@@ -21,6 +22,15 @@ class OpenclawBridge extends utils.Adapter {
 
     this.bridge = new BridgeRuntime(this, this.config);
     await this.bridge.ensureRuntimeStates();
+
+    try {
+      const synced = await syncAdminAvailableVersion(this);
+      for (const line of synced) {
+        this.log.info(`Admin available version synced: ${line}`);
+      }
+    } catch (err) {
+      this.log.warn(`Admin available version sync skipped: ${err?.message || err}`);
+    }
 
     const commandObj = await this.getObjectAsync('control.command');
     if (!commandObj) {

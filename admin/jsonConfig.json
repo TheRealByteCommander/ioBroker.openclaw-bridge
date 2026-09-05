@@ -75,8 +75,8 @@
         "_guideInstall": {
           "type": "staticText",
           "text": {
-            "en": "The GitHub repo must be named ioBroker.openclaw-bridge.\nInstall: iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.3 && iobroker add openclaw-bridge && iobroker start openclaw-bridge.0\nUpdate: same url command, then iobroker upload openclaw-bridge && iobroker restart openclaw-bridge.0\nOpen this page with the instance wrench. After upload, the formatted handbook is also at /adapter/openclaw-bridge/ANLEITUNG.html",
-            "de": "Das GitHub-Repo muss ioBroker.openclaw-bridge heißen.\nInstallieren: iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.3 && iobroker add openclaw-bridge && iobroker start openclaw-bridge.0\nUpdate: derselbe url-Befehl, danach iobroker upload openclaw-bridge && iobroker restart openclaw-bridge.0\nDiese Seite öffnest du über das Schraubenschlüssel-Symbol der Instanz. Nach upload liegt die formatierte Anleitung auch unter /adapter/openclaw-bridge/ANLEITUNG.html"
+            "en": "The GitHub repo must be named ioBroker.openclaw-bridge.\nInstall: iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.4 && iobroker add openclaw-bridge && iobroker start openclaw-bridge.0\nUpdate: same url command, then iobroker upload openclaw-bridge && iobroker restart openclaw-bridge.0\nOpen this page with the instance wrench. After upload, the formatted handbook is also at /adapter/openclaw-bridge/ANLEITUNG.html",
+            "de": "Das GitHub-Repo muss ioBroker.openclaw-bridge heißen.\nInstallieren: iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.4 && iobroker add openclaw-bridge && iobroker start openclaw-bridge.0\nUpdate: derselbe url-Befehl, danach iobroker upload openclaw-bridge && iobroker restart openclaw-bridge.0\nDiese Seite öffnest du über das Schraubenschlüssel-Symbol der Instanz. Nach upload liegt die formatierte Anleitung auch unter /adapter/openclaw-bridge/ANLEITUNG.html"
           },
           "xs": 12
         },

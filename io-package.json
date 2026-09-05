@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.12.3",
+    "version": "0.12.4",
     "news": {
+      "0.12.4": {
+        "en": "Admin available version: overwrite stale repo cache (e.g. 0.9.0) on start and ship sources-dist.json for a custom repository.",
+        "de": "Admin verfügbare Version: veralteten Repo-Cache (z. B. 0.9.0) beim Start überschreiben und sources-dist.json für ein eigenes Repository mitliefern."
+      },
       "0.12.3": {
         "en": "Create the command channel at startup (control.command, responses, info). io-package uses instanceObjects so upgrades recreate the OpenClaw API states.",
         "de": "Steuerkanal beim Start anlegen (control.command, responses, info). io-package nutzt instanceObjects, damit Upgrades die OpenClaw-API-States wiederherstellen."
@@ -18,10 +22,6 @@
       "0.12.0": {
         "en": "Operating envelope: OpenClaw plans only within ACL, AND/OR/XOR, thresholds and max on-time (getConstraints, planWithinBounds).",
         "de": "Rahmenbedingungen: OpenClaw plant nur innerhalb von ACL, AND/OR/XOR, Schwellwerten und max. Einschaltdauer (getConstraints, planWithinBounds)."
-      },
-      "0.11.0": {
-        "en": "Numeric thresholds and per-load PV surplus switching (e.g. pool heating from 4000 W).",
-        "de": "Zahlen-Schwellwerte und PV-Überschuss je Last (z. B. Poolheizung ab 4000 W)."
       }
     },
     "titleLang": {
