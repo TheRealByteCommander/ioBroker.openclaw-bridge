@@ -2,7 +2,7 @@
 
 ## Status
 
-- Version: **0.12.1**
+- Version: **0.12.2**
 - Engineering: GREEN
 - Test suite: GREEN (`npm test` — 55/55)
 - P1 blockers: none
@@ -23,7 +23,7 @@
 - [x] Numeric thresholds and per-load PV surplus switching
 - [x] Operating envelope (`getConstraints`, `planWithinBounds`, hints)
 - [x] `package.json` / `io-package.json` version aligned (0.12.0)
-- [x] `common.news` for 0.9.0–0.12.0
+- [x] `common.news` only 0.10.0–current (no 0.9.x keys; Admin string-compare)
 - [x] CHANGELOG.md
 - [x] LICENSE (MIT)
 - [x] Negative path tests for oversized batches, guards, thresholds, envelope

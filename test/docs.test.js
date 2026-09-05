@@ -46,6 +46,16 @@ test('common.news starts at the current version and is newest-first', () => {
   }
 });
 
+test('news keys must not lexicographically exceed the current version', () => {
+  const version = ioPackage.common.version;
+  for (const key of Object.keys(ioPackage.common.news)) {
+    assert.ok(
+      key <= version,
+      `Admin string-compares news keys: "${key}" > "${version}" looks like a newer available version`,
+    );
+  }
+});
+
 test('changelog and README document the current version', () => {
   const version = pkg.version;
   assert.match(readDoc('CHANGELOG.md'), new RegExp(`## ${version.replaceAll('.', '\\.')}`));
@@ -93,12 +103,27 @@ test('adapter ships the operator handbook for Admin and common.docs', () => {
   assert.equal(fs.existsSync(path.join(root, 'docs/de/ANLEITUNG.md')), true);
   assert.equal(fs.existsSync(path.join(root, 'docs/en/HANDBOOK.md')), true);
   assert.equal(fs.existsSync(path.join(root, 'admin/ANLEITUNG.html')), true);
+  assert.equal(readDoc('admin/docs/de/ANLEITUNG.md'), readDoc('docs/de/ANLEITUNG.md'));
+  assert.equal(readDoc('admin/docs/en/HANDBOOK.md'), readDoc('docs/en/HANDBOOK.md'));
   const de = readDoc('docs/de/ANLEITUNG.md');
   for (const token of ['simple-api', '8087', 'control.command', 'getConstraints', 'SKILL.md']) {
     assert.equal(de.includes(token), true, `ANLEITUNG.md missing ${token}`);
   }
   assert.deepEqual(ioPackage.common.docs.de, ['docs/de/ANLEITUNG.md']);
   assert.deepEqual(ioPackage.common.docs.en, ['docs/en/HANDBOOK.md']);
+});
+
+test('Guide tab embeds the handbook inside the instance, not only an external URL', () => {
+  const config = JSON.parse(readDoc('admin/jsonConfig.json'));
+  const items = config.items.tabGuide.items;
+  assert.equal(items._guideFrame.type, 'iframe');
+  assert.match(items._guideFrame.url, /\/adapter\/openclaw-bridge\/ANLEITUNG\.html$/);
+  assert.equal(items._guideOpenHtml.type, 'staticLink');
+  assert.match(items._guideOpenHtml.href, /ANLEITUNG\.html/);
+  const de = `${items._guideWhat.text.de}\n${items._guideTest.text.de}\n${items._guideConnect.text.de}`;
+  for (const token of ['control.command', 'getConstraints', 'simple-api', '8087']) {
+    assert.equal(de.includes(token), true, `Guide tab missing ${token}`);
+  }
 });
 
 test('README describes the operating envelope for OpenClaw', () => {
