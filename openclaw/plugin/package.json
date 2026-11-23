@@ -1,0 +1,27 @@
+{
+  "name": "@byte-commander/openclaw-iobroker-bridge",
+  "version": "0.13.0",
+  "description": "OpenClaw plugin: ioBroker tools via the openclaw-bridge adapter",
+  "type": "module",
+  "main": "./index.js",
+  "files": [
+    "index.js",
+    "register.mjs",
+    "tools.mjs",
+    "client.mjs",
+    "openclaw.plugin.json",
+    "README.md"
+  ],
+  "openclaw": {
+    "extensions": [
+      "./index.js"
+    ]
+  },
+  "peerDependencies": {
+    "openclaw": "*"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

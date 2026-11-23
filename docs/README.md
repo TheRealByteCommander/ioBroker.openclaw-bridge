@@ -1,6 +1,6 @@
-# Dokumentation — openclaw-bridge 0.12.5
+# Dokumentation — openclaw-bridge 0.13.0
 
-Aktueller Stand 0.12.3 (Steuerkanal beim Start). Einstieg: [../README.md](../README.md).
+Aktueller Stand 0.13.0 (OpenClaw-Schnittstelle: REST-API, Event-Push, Skill und Plugin). Einstieg: [../README.md](../README.md).
 
 **Im Adapter:** [de/ANLEITUNG.md](de/ANLEITUNG.md) · [en/HANDBOOK.md](en/HANDBOOK.md) · `admin/ANLEITUNG.html`
 
@@ -18,6 +18,7 @@ Aktueller Stand 0.12.3 (Steuerkanal beim Start). Einstieg: [../README.md](../REA
 
 | Dokument | Inhalt |
 |---|---|
+| [../openclaw/README.md](../openclaw/README.md) | **Einrichtung OpenClaw**: REST-API, Skill, Plugin, Webhook |
 | [OPENCLAW_AGENT.md](OPENCLAW_AGENT.md) | Vertrag: Rahmenbedingungen, Loop, Hints |
 | [ACTIONS.md](ACTIONS.md) | Alle JSON-Actions mit Payload-Beispielen |
 | [CONVERSATIONAL_AUTOMATION_ARCHITECTURE.md](CONVERSATIONAL_AUTOMATION_ARCHITECTURE.md) | Architektur, Datenflüsse, Safety, Lernen, Envelope |
@@ -27,7 +28,8 @@ Aktueller Stand 0.12.3 (Steuerkanal beim Start). Einstieg: [../README.md](../REA
 | Dokument | Inhalt |
 |---|---|
 | [../CHANGELOG.md](../CHANGELOG.md) | Versionshistorie |
-| [RELEASE_READINESS.md](RELEASE_READINESS.md) | Checkliste 0.12.0 |
+| [RELEASE_READINESS.md](RELEASE_READINESS.md) | Checkliste 0.13.0 |
+| [ROADMAP_1.0.md](ROADMAP_1.0.md) | Weg zu 1.0.0 |
 
 ## Historische Audits
 

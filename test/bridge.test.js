@@ -66,7 +66,8 @@ test('normalizeConfig accepts chip arrays from the admin settings page', () => {
     habitWatchPrefixes: ['zigbee.0'],
   });
   assert.deepEqual(cfg.allowedPrefixes, ['javascript.0', '0_userdata.0']);
-  assert.deepEqual(cfg.allowedActions, ['ping', 'help']);
+  // read-only discovery actions are always appended
+  assert.deepEqual(cfg.allowedActions, ['ping', 'help', 'describeTools', 'getPendingConfirmations']);
   assert.deepEqual(cfg.habitWatchPrefixes, ['zigbee.0']);
 });
 
@@ -409,12 +410,19 @@ test('handleIntent prefers learned habit targets over scene templates', async ()
 
 test('queue high watermark rejects without corrupting depth', async () => {
   const { bridge } = habitBridge({ allowedActions: 'ping', queueHighWatermark: 1 });
-  bridge.queueDepth = 1;
+  let release;
+  const blocker = bridge.queue.push(() => new Promise((resolve) => { release = resolve; }));
   const rejected = await bridge.processCommand({ action: 'ping' });
   assert.equal(rejected.ok, false);
   assert.equal(rejected.error.code, 'EQUEUEFULL');
   assert.equal(bridge.queueDepth, 1);
   assert.equal(bridge.counts.queueRejected, 1);
+  release();
+  await blocker;
+  await bridge.queue.drain();
+  assert.equal(bridge.queueDepth, 0);
+  const accepted = await bridge.processCommand({ action: 'ping' });
+  assert.equal(accepted.ok, true);
 });
 
 test('getTelemetry records duration after successful commands', async () => {

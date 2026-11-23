@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.12.5",
+    "version": "0.13.0",
     "news": {
+      "0.13.0": {
+        "en": "OpenClaw interface: REST API with bearer token, tool catalog, event push via OpenClaw webhook, SSE stream, OpenClaw skill and plugin. Serial command queue, timeout abort, idempotent requestId, human confirmation mode, response cleanup, restricted STT audio directory.",
+        "de": "OpenClaw-Schnittstelle: REST-API mit Bearer-Token, Tool-Katalog, Event-Push per OpenClaw-Webhook, SSE-Stream, OpenClaw-Skill und -Plugin. Serielle Command-Queue, Abbruch bei Timeout, idempotente requestId, menschliche Bestätigung, Aufräumen alter Antworten, festes STT-Audioverzeichnis."
+      },
       "0.12.5": {
         "en": "Keep a newer repository version in Admin so an update is visible; only overwrite stale older cache (e.g. 0.9.0).",
         "de": "Neuere Repository-Version in Admin behalten, damit ein Update sichtbar bleibt; nur veralteten älteren Cache (z. B. 0.9.0) überschreiben."
@@ -67,11 +71,22 @@
     "compact": true,
     "adminUI": {
       "config": "json"
-    }
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=5.0.19"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=6.13.16"
+      }
+    ],
+    "tier": 3
   },
   "native": {
     "allowedPrefixes": "javascript.0,0_userdata.0,alexa2.0",
-    "allowedActions": "getState,setState,listStates,getStates,ping,help,handleIntent,executePlan,validatePlan,emitContextEvent,getContextEvents,handlePvSurplus,batchSetStates,syncSnapshot,getTelemetry,speak,transcribe,voiceCommand,recordObservation,getHabits,getLearningStatus,setHabitMode,evaluateHabits,suggestAutomation,applyHabit,optimizeHome,checkGuards,getConstraints,planWithinBounds",
+    "allowedActions": "getState,setState,listStates,getStates,ping,help,handleIntent,executePlan,validatePlan,emitContextEvent,getContextEvents,handlePvSurplus,batchSetStates,syncSnapshot,getTelemetry,speak,transcribe,voiceCommand,recordObservation,getHabits,getLearningStatus,setHabitMode,evaluateHabits,suggestAutomation,applyHabit,optimizeHome,checkGuards,getConstraints,planWithinBounds,describeTools,getPendingConfirmations,cancelConfirmation",
     "commandTimeoutMs": 5000,
     "setStateAckAllowed": true,
     "criticalStatePrefixes": "system.,admin.0",
@@ -107,7 +122,26 @@
     "habitBedtimeTemperature": 18,
     "habitMorningTemperature": 21,
     "habitScenesJson": "",
-    "guardRules": []
+    "guardRules": [],
+    "sttAudioDir": "",
+    "authToken": "",
+    "httpEnabled": false,
+    "httpBind": "127.0.0.1",
+    "httpPort": 8097,
+    "responseRetentionMinutes": 60,
+    "idempotencyTtlMinutes": 10,
+    "agentHeartbeatMinutes": 15,
+    "confirmationMode": "agent",
+    "confirmationTtlMinutes": 10,
+    "confirmationDenySources": "system.adapter.simple-api,system.adapter.rest-api,system.adapter.openclaw-bridge",
+    "openclawWebhookUrl": "",
+    "openclawWebhookToken": "",
+    "openclawWebhookMode": "agent",
+    "openclawAgentId": "",
+    "openclawDeliver": true,
+    "openclawNotifyEvents": "guard_block,max_on_elapsed,confirmation_pending,confirmation_resolved",
+    "openclawWatchStates": "",
+    "notifyMinIntervalSec": 60
   },
   "instanceObjects": [
     {
@@ -483,6 +517,92 @@
         "def": ""
       },
       "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "name": "OpenClaw agent active (command within heartbeat window)",
+        "type": "boolean",
+        "role": "indicator.connected",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.agentLastSeen",
+      "type": "state",
+      "common": {
+        "name": "Last command from the agent",
+        "type": "string",
+        "role": "date",
+        "read": true,
+        "write": false,
+        "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "safety.pendingConfirmations",
+      "type": "state",
+      "common": {
+        "name": "Operations waiting for operator approval",
+        "type": "string",
+        "role": "json",
+        "read": true,
+        "write": false,
+        "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "safety.confirm",
+      "type": "state",
+      "common": {
+        "name": "Write a confirmation id here to approve (operator only)",
+        "type": "string",
+        "role": "text",
+        "read": true,
+        "write": true,
+        "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "safety.reject",
+      "type": "state",
+      "common": {
+        "name": "Write a confirmation id here to reject (operator only)",
+        "type": "string",
+        "role": "text",
+        "read": true,
+        "write": true,
+        "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "safety.lastConfirmation",
+      "type": "state",
+      "common": {
+        "name": "Last operator decision",
+        "type": "string",
+        "role": "json",
+        "read": true,
+        "write": false,
+        "def": ""
+      },
+      "native": {}
     }
+  ],
+  "encryptedNative": [
+    "authToken",
+    "openclawWebhookToken"
+  ],
+  "protectedNative": [
+    "authToken",
+    "openclawWebhookToken"
   ]
 }

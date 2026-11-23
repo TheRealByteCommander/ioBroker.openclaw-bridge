@@ -2,6 +2,34 @@
 
 Alle nennenswerten Änderungen an `iobroker.openclaw-bridge`.
 
+## 0.13.0 — 2026-11-23
+
+**OpenClaw-Schnittstelle**
+
+- REST-API `/api/v1` (Bearer-Token): `health`, `tools`, `constraints`, `command`, `actions/<action>`, `events` (Server-Sent Events). Antwort synchron, kein Polling mehr.
+- Ereignis-Push an das OpenClaw-Gateway (`/hooks/agent` oder `/hooks/wake`): gesperrte Regeln, Auto-Aus nach Maximaldauer, offene/entschiedene Bestätigungen, Moduswechsel, beobachtete States. Gedrosselt je Ereignis.
+- `sendTo`-Schnittstelle (`command`, `confirm`, `reject`, `tools`) und Testknöpfe im neuen Admin-Tab **OpenClaw**.
+- Tool-Katalog mit JSON-Schema (`describeTools`, `GET /api/v1/tools`; Formate raw/openai/anthropic) als einzige Quelle für Validierung und Agent-Tools.
+- Im Repo: OpenClaw-Skill (`openclaw/skill/iobroker-bridge`, CLI ohne Abhängigkeiten) und OpenClaw-Plugin (`openclaw/plugin`, 13 Tools, Schreib-Tools optional).
+- `listStates` mit `prefix`, `search`, `withMeta`, `limit` für die Geräteerkennung.
+
+**Sicherheit und Korrektheit**
+
+- Commands laufen strikt seriell. Zwei gleichzeitige Commands können eine Regel nicht mehr gemeinsam umgehen.
+- Timeout bricht die restlichen Writes eines Plans ab.
+- Idempotenz: wiederholte `requestId` bzw. `Idempotency-Key` führt nicht doppelt aus.
+- `authToken` (verschlüsselt) für alle Transportwege; REST-API startet auf öffentlicher Adresse nur mit Token.
+- `confirmationMode = human`: Der Agent kann kritische Writes nicht selbst bestätigen; Freigabe über `safety.confirm`.
+- `transcribe`/`voiceCommand` lesen nur Dateien in `sttAudioDir`.
+- `responses.<requestId>` werden nach `responseRetentionMinutes` gelöscht; HTTP/sendTo legen keine an.
+- `info.connection` zeigt, ob der Agent aktiv ist.
+
+**Code-Qualität**
+
+- `lib/bridge.js` aufgeteilt (`config`, `errors`, `util`, `queue`, `catalog`, `confirmations`, `notifier`, `httpServer`, `actions/`). Payload-Validierung je Action.
+- ESLint, GitHub-Actions-Workflow (Node 20/22), `package-lock.json`, `engines`, `files`.
+- 112 Tests (vorher 73), inkl. End-to-End Plugin → HTTP → Bridge.
+
 ## 0.12.5 — 2026-09-05
 
 - Admin-Update-Hinweis: eine **neuere** Version im Repository bleibt stehen (Update sichtbar). Nur älterer Cache (z. B. 0.9.0) wird auf die installierte Version gezogen.

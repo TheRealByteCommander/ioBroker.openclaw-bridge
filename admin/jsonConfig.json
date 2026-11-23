@@ -139,8 +139,8 @@
         "_guideConnect": {
           "type": "staticText",
           "text": {
-            "en": "OpenClaw --HTTP GET--> simple-api :8087 --> control.command, then GET responses.<requestId>.\nPrereqs: instance running, object ping green, simple-api.0 port 8087, reachable from the OpenClaw host, not exposed to the internet.\nSkill file e.g. ~/.openclaw/workspace/skills/iobroker-bridge/SKILL.md: write ONLY control.command, read responses.<requestId>, never device states. Every control wish: create requestId, GET /set/...control.command?value=<JSON>, wait, GET /get/...responses.<requestId>. On ok:false follow error.code, error.nextAction, error.hint.\nRequired order: getConstraints → planWithinBounds or handleIntent execute:false → run only allowed → confirmation:true for critical writes.\nExamples: {\"action\":\"ping\"} · {\"action\":\"help\"} · {\"action\":\"getConstraints\"} · {\"action\":\"handleIntent\",\"text\":\"gute nacht\",\"execute\":false}",
-            "de": "OpenClaw --HTTP GET--> simple-api :8087 --> control.command, danach GET responses.<requestId>.\nVoraussetzungen: Instanz läuft, Objekte-ping ist grün, simple-api.0 Port 8087, von der OpenClaw-Maschine erreichbar, nicht ins Internet öffnen.\nSkill z. B. ~/.openclaw/workspace/skills/iobroker-bridge/SKILL.md: NUR control.command schreiben, responses.<requestId> lesen, niemals Geräte-States. Jeder Steuerwunsch: requestId erzeugen, GET /set/...control.command?value=<JSON>, warten, GET /get/...responses.<requestId>. Bei ok:false die Felder error.code, error.nextAction, error.hint befolgen.\nPflicht-Reihenfolge: getConstraints → planWithinBounds oder handleIntent execute:false → nur allowed ausführen → confirmation:true bei kritischen Writes.\nBeispiele: {\"action\":\"ping\"} · {\"action\":\"help\"} · {\"action\":\"getConstraints\"} · {\"action\":\"handleIntent\",\"text\":\"gute nacht\",\"execute\":false}"
+            "en": "Recommended: REST API. Tab OpenClaw → set API token, enable REST API (port 8097). OpenClaw uses the bundled plugin (openclaw/plugin) or skill (openclaw/skill/iobroker-bridge/SKILL.md): POST /api/v1/command with bearer token, immediate response.\nStill supported: OpenClaw --HTTP GET--> simple-api :8087 --> control.command, then GET responses.<requestId>; with a token add field \"token\" to the JSON.\nRequired order: getConstraints → planWithinBounds or handleIntent execute:false → run only allowed. On ok:false follow error.code, error.nextAction, error.hint. On ECONFIRMPENDING a human approves via safety.confirm.\nExamples: {\"action\":\"ping\"} · {\"action\":\"getConstraints\"} · {\"action\":\"listStates\",\"search\":\"pump\",\"withMeta\":true} · {\"action\":\"handleIntent\",\"text\":\"good night\",\"execute\":false}",
+            "de": "Empfohlen: REST-API. Tab OpenClaw → API-Token setzen, REST-API aktivieren (Port 8097). OpenClaw nutzt das mitgelieferte Plugin (openclaw/plugin) oder die Skill (openclaw/skill/iobroker-bridge/SKILL.md): POST /api/v1/command mit Bearer-Token, Antwort sofort.\nBisher weiter möglich: OpenClaw --HTTP GET--> simple-api :8087 --> control.command, danach GET responses.<requestId>; mit Token das Feld \"token\" ins JSON.\nPflicht-Reihenfolge: getConstraints → planWithinBounds oder handleIntent execute:false → nur allowed ausführen. Bei ok:false error.code, error.nextAction, error.hint befolgen. Bei ECONFIRMPENDING bestätigt ein Mensch über safety.confirm.\nBeispiele: {\"action\":\"ping\"} · {\"action\":\"getConstraints\"} · {\"action\":\"listStates\",\"search\":\"pumpe\",\"withMeta\":true} · {\"action\":\"handleIntent\",\"text\":\"gute nacht\",\"execute\":false}"
           },
           "xs": 12
         },
@@ -207,6 +207,406 @@
             "de": "1) openclaw-bridge.0 läuft. 2) Objekte-ping → ok. 3) simple-api Port 8087 von der OpenClaw-Maschine erreichbar. 4) curl-ping über :8087 → pong. 5) Skill mit Base-URL und „nur control.command“. 6) Chat: „ping die Bridge“ → ok. 7) Chat: „was sind die aktuellen Rahmenbedingungen?“ → getConstraints.\nWenn Schritt 2 scheitert: Bridge. Wenn 2 geht und 4 nicht: simple-api/Netz. Wenn 4 geht und 6 nicht: Skill."
           },
           "xs": 12
+        }
+      }
+    },
+    "tabOpenclaw": {
+      "type": "panel",
+      "label": {
+        "en": "OpenClaw",
+        "de": "OpenClaw"
+      },
+      "items": {
+        "_ocIntro": {
+          "type": "staticText",
+          "text": {
+            "en": "OpenClaw talks to this adapter via the REST API (recommended), sendTo or control.command (simple-api). Events (blocked rules, auto-off, confirmations) can be pushed to the OpenClaw gateway webhook. Setup: see tab Guide and openclaw/README.md in the repository.",
+            "de": "OpenClaw spricht mit diesem Adapter über die REST-API (empfohlen), sendTo oder control.command (simple-api). Ereignisse (gesperrte Regeln, Auto-Aus, Bestätigungen) können an den Webhook des OpenClaw-Gateways gepusht werden. Einrichtung: Tab Anleitung und openclaw/README.md im Repository."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "_authHeader": {
+          "type": "header",
+          "text": {
+            "en": "Access",
+            "de": "Zugriff"
+          },
+          "size": 4,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "newLine": true
+        },
+        "authToken": {
+          "type": "password",
+          "label": {
+            "en": "API token",
+            "de": "API-Token"
+          },
+          "help": {
+            "en": "Required for every command (Bearer header for HTTP, field \"token\" for control.command/sendTo). Use a long random value, e.g. openssl rand -hex 32. Empty = no authentication (not recommended).",
+            "de": "Pflicht für jedes Kommando (Bearer-Header bei HTTP, Feld \"token\" bei control.command/sendTo). Langen Zufallswert nutzen, z. B. openssl rand -hex 32. Leer = keine Authentifizierung (nicht empfohlen)."
+          },
+          "repeat": false,
+          "visible": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "_apiHeader": {
+          "type": "header",
+          "text": {
+            "en": "REST API",
+            "de": "REST-API"
+          },
+          "size": 4,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "newLine": true
+        },
+        "httpEnabled": {
+          "type": "checkbox",
+          "label": {
+            "en": "Enable REST API",
+            "de": "REST-API aktivieren"
+          },
+          "help": {
+            "en": "Synchronous JSON API at /api/v1 (no polling). Only starts on a non-loopback address if an API token is set.",
+            "de": "Synchrone JSON-API unter /api/v1 (kein Polling). Startet auf einer Nicht-Loopback-Adresse nur mit gesetztem API-Token."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "httpBind": {
+          "type": "ip",
+          "label": {
+            "en": "Bind address",
+            "de": "Bind-Adresse"
+          },
+          "help": {
+            "en": "127.0.0.1 = only this host. 0.0.0.0 = all interfaces (OpenClaw on another machine).",
+            "de": "127.0.0.1 = nur dieser Host. 0.0.0.0 = alle Interfaces (OpenClaw auf anderem Rechner)."
+          },
+          "listenOnAllPorts": true,
+          "hidden": "!data.httpEnabled",
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "httpPort": {
+          "type": "port",
+          "label": {
+            "en": "Port",
+            "de": "Port"
+          },
+          "min": 1,
+          "max": 65535,
+          "hidden": "!data.httpEnabled",
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "_pingBtn": {
+          "type": "sendTo",
+          "command": "adminPing",
+          "label": {
+            "en": "Test bridge (ping)",
+            "de": "Bridge testen (ping)"
+          },
+          "variant": "outlined",
+          "showProcess": true,
+          "xs": 12,
+          "sm": 6,
+          "md": 4,
+          "newLine": true
+        },
+        "_hookHeader": {
+          "type": "header",
+          "text": {
+            "en": "Push events to OpenClaw",
+            "de": "Ereignisse an OpenClaw senden"
+          },
+          "size": 4,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "newLine": true
+        },
+        "openclawWebhookUrl": {
+          "type": "text",
+          "label": {
+            "en": "OpenClaw webhook URL",
+            "de": "OpenClaw-Webhook-URL"
+          },
+          "help": {
+            "en": "Gateway hook endpoint, e.g. http://192.168.178.50:18789/hooks/agent (needs hooks.enabled in openclaw.json). Empty = no push.",
+            "de": "Hook-Endpunkt des Gateways, z. B. http://192.168.178.50:18789/hooks/agent (braucht hooks.enabled in openclaw.json). Leer = kein Push."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 8
+        },
+        "openclawWebhookMode": {
+          "type": "select",
+          "label": {
+            "en": "Webhook mode",
+            "de": "Webhook-Modus"
+          },
+          "options": [
+            {
+              "value": "agent",
+              "label": {
+                "en": "agent – run an agent turn (/hooks/agent)",
+                "de": "agent – Agent-Lauf starten (/hooks/agent)"
+              }
+            },
+            {
+              "value": "wake",
+              "label": {
+                "en": "wake – system event (/hooks/wake)",
+                "de": "wake – Systemereignis (/hooks/wake)"
+              }
+            }
+          ],
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "openclawWebhookToken": {
+          "type": "password",
+          "label": {
+            "en": "Webhook token (hooks.token)",
+            "de": "Webhook-Token (hooks.token)"
+          },
+          "help": {
+            "en": "Must match hooks.token in openclaw.json. Different from the gateway token.",
+            "de": "Muss hooks.token in openclaw.json entsprechen. Nicht das Gateway-Token."
+          },
+          "repeat": false,
+          "visible": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 8
+        },
+        "openclawAgentId": {
+          "type": "text",
+          "label": {
+            "en": "Agent id",
+            "de": "Agent-ID"
+          },
+          "help": {
+            "en": "Optional, e.g. main",
+            "de": "Optional, z. B. main"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "openclawNotifyEvents": {
+          "type": "chips",
+          "label": {
+            "en": "Events to push",
+            "de": "Zu sendende Ereignisse"
+          },
+          "help": {
+            "en": "guard_block, max_on_elapsed, confirmation_pending, confirmation_resolved, habit_mode_changed, state_changed",
+            "de": "guard_block, max_on_elapsed, confirmation_pending, confirmation_resolved, habit_mode_changed, state_changed"
+          },
+          "delimiter": ",",
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "openclawWatchStates": {
+          "type": "chips",
+          "label": {
+            "en": "Watched states",
+            "de": "Beobachtete States"
+          },
+          "help": {
+            "en": "State ids or prefixes whose changes are pushed as state_changed (e.g. doorbell, window contact). Requires state_changed in the event list.",
+            "de": "State-IDs oder Prefixe, deren Änderungen als state_changed gepusht werden (z. B. Klingel, Fensterkontakt). Braucht state_changed in der Ereignisliste."
+          },
+          "delimiter": ",",
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "openclawDeliver": {
+          "type": "checkbox",
+          "label": {
+            "en": "Deliver agent reply to chat",
+            "de": "Agent-Antwort in den Chat zustellen"
+          },
+          "help": {
+            "en": "hooks/agent \"deliver\": the agent announces its reaction in the last used channel",
+            "de": "hooks/agent \"deliver\": Agent meldet seine Reaktion im zuletzt genutzten Kanal"
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "notifyMinIntervalSec": {
+          "type": "number",
+          "label": {
+            "en": "Min. interval per event (s)",
+            "de": "Mindestabstand je Ereignis (s)"
+          },
+          "help": {
+            "en": "Throttles repeated events of the same type and id",
+            "de": "Bremst wiederholte Ereignisse gleichen Typs und gleicher ID"
+          },
+          "min": 0,
+          "max": 86400,
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "_hookBtn": {
+          "type": "sendTo",
+          "command": "testWebhook",
+          "label": {
+            "en": "Send test event",
+            "de": "Testereignis senden"
+          },
+          "variant": "outlined",
+          "showProcess": true,
+          "xs": 12,
+          "sm": 6,
+          "md": 4
+        },
+        "_confHeader": {
+          "type": "header",
+          "text": {
+            "en": "Confirmation",
+            "de": "Bestätigung"
+          },
+          "size": 4,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "newLine": true
+        },
+        "confirmationMode": {
+          "type": "select",
+          "label": {
+            "en": "Who confirms critical writes",
+            "de": "Wer bestätigt kritische Writes"
+          },
+          "help": {
+            "en": "human = the agent cannot approve itself; an operator writes the id to safety.confirm (VIS, Telegram script, admin).",
+            "de": "human = der Agent kann nicht selbst bestätigen; ein Operator schreibt die ID nach safety.confirm (VIS, Telegram-Skript, Admin)."
+          },
+          "options": [
+            {
+              "value": "agent",
+              "label": {
+                "en": "agent – confirmation:true in the request (legacy)",
+                "de": "agent – confirmation:true im Request (bisher)"
+              }
+            },
+            {
+              "value": "human",
+              "label": {
+                "en": "human – operator approves via safety.confirm",
+                "de": "human – Operator bestätigt über safety.confirm"
+              }
+            }
+          ],
+          "xs": 12,
+          "sm": 12,
+          "md": 6
+        },
+        "confirmationTtlMinutes": {
+          "type": "number",
+          "label": {
+            "en": "Confirmation expires after (min)",
+            "de": "Bestätigung verfällt nach (min)"
+          },
+          "min": 1,
+          "max": 1440,
+          "xs": 12,
+          "sm": 12,
+          "md": 6
+        },
+        "confirmationDenySources": {
+          "type": "chips",
+          "label": {
+            "en": "Sources that may not confirm",
+            "de": "Quellen ohne Bestätigungsrecht"
+          },
+          "help": {
+            "en": "Writers (state.from prefix) whose writes to safety.confirm are ignored – the agent's own channels.",
+            "de": "Schreiber (Prefix von state.from), deren Writes auf safety.confirm ignoriert werden – die Kanäle des Agenten."
+          },
+          "delimiter": ",",
+          "xs": 12,
+          "sm": 12,
+          "md": 12
+        },
+        "_maintHeader": {
+          "type": "header",
+          "text": {
+            "en": "Housekeeping",
+            "de": "Wartung"
+          },
+          "size": 4,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "newLine": true
+        },
+        "responseRetentionMinutes": {
+          "type": "number",
+          "label": {
+            "en": "Keep responses.* (min)",
+            "de": "responses.* behalten (min)"
+          },
+          "help": {
+            "en": "Older per-request response states are deleted",
+            "de": "Ältere Antwort-States je Request werden gelöscht"
+          },
+          "min": 1,
+          "max": 10080,
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "idempotencyTtlMinutes": {
+          "type": "number",
+          "label": {
+            "en": "Idempotency window (min)",
+            "de": "Idempotenz-Fenster (min)"
+          },
+          "help": {
+            "en": "A repeated requestId within this window returns the stored response instead of executing again",
+            "de": "Eine wiederholte requestId in diesem Fenster liefert die gespeicherte Antwort statt erneut auszuführen"
+          },
+          "min": 1,
+          "max": 1440,
+          "xs": 12,
+          "sm": 12,
+          "md": 4
+        },
+        "agentHeartbeatMinutes": {
+          "type": "number",
+          "label": {
+            "en": "Agent heartbeat (min)",
+            "de": "Agent-Heartbeat (min)"
+          },
+          "help": {
+            "en": "info.connection is green while a command arrived within this window",
+            "de": "info.connection ist grün, solange in diesem Fenster ein Kommando kam"
+          },
+          "min": 1,
+          "max": 1440,
+          "xs": 12,
+          "sm": 12,
+          "md": 4
         }
       }
     },
@@ -1107,6 +1507,20 @@
           },
           "xs": 12,
           "sm": 6,
+          "md": 4
+        },
+        "sttAudioDir": {
+          "type": "text",
+          "label": {
+            "en": "STT audio directory",
+            "de": "STT-Audioverzeichnis"
+          },
+          "help": {
+            "en": "transcribe/voiceCommand only read files inside this directory. Empty = transcription disabled.",
+            "de": "transcribe/voiceCommand lesen nur Dateien in diesem Verzeichnis. Leer = Transkription aus."
+          },
+          "xs": 12,
+          "sm": 12,
           "md": 4
         }
       }

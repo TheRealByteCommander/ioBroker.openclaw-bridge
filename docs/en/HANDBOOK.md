@@ -1,6 +1,6 @@
 # OpenClaw-Bridge — Operator handbook
 
-**Adapter:** `openclaw-bridge` · **Package:** `iobroker.openclaw-bridge` · **Version:** 0.12.5
+**Adapter:** `openclaw-bridge` · **Package:** `iobroker.openclaw-bridge` · **Version:** 0.13.0
 
 The German original shipped in the adapter is `docs/de/ANLEITUNG.md` and `admin/ANLEITUNG.html`.
 
@@ -42,9 +42,14 @@ curl -sS "http://127.0.0.1:8087/get/openclaw-bridge.0.responses.test-1"
 
 ## Connect OpenClaw
 
-1. Confirm object `ping` works.
-2. simple-api online, note **Port** (instance settings).
-3. From the OpenClaw host, repeat the curl test against `http://<iobroker-ip>:8087`.
-4. Add a skill that only writes `control.command` and always starts with `getConstraints`.
+Since 0.13.0 the recommended path is the built-in REST API:
 
-Full German step-by-step including skill text, envelope loop, actions and error codes: **Anleitung** tab / `ANLEITUNG.html`.
+1. Tab **OpenClaw**: set an **API token** (e.g. `openssl rand -hex 32`), enable the **REST API** (bind `0.0.0.0` if OpenClaw runs on another host, port `8097`), save, press **Test bridge (ping)**.
+2. From the OpenClaw host: `curl -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"action":"getConstraints"}' http://<iobroker-ip>:8097/api/v1/command`.
+3. Install the bundled **skill** (`openclaw/skill/iobroker-bridge`, set `IOBROKER_BRIDGE_URL` and the token as `apiKey`) or the **plugin** (`openclaw plugins install <adapter>/openclaw/plugin`, config `baseUrl` + `token`). Write tools of the plugin are optional and must be allowed via `tools.allow`.
+4. Optional: enable `hooks` in `openclaw.json` and set the webhook URL `http://<openclaw-ip>:18789/hooks/agent` + hook token in the OpenClaw tab to receive events (blocked rules, auto-off, pending confirmations).
+5. Optional: confirmation mode **human** – the agent cannot approve critical writes; an operator writes the confirmation id to `safety.confirm`.
+
+The legacy path via simple-api (port 8087, `control.command`, `responses.<requestId>`) still works; add `"token"` to the JSON when a token is set.
+
+Full details: `openclaw/README.md` and the German **Anleitung** tab / `ANLEITUNG.html`.

@@ -1,6 +1,6 @@
 # OpenClaw-Bridge — Ausführliche Anleitung
 
-**Adapter:** `openclaw-bridge` · **Paket:** `iobroker.openclaw-bridge` · **Version:** 0.12.5
+**Adapter:** `openclaw-bridge` · **Paket:** `iobroker.openclaw-bridge` · **Version:** 0.13.0
 
 Diese Datei liegt **im Adapter** und ist dort lesbar:
 
@@ -18,7 +18,7 @@ Die Bridge ist die **einzige erlaubte Schnittstelle** zwischen OpenClaw und dein
 ```text
 Mensch  →  OpenClaw (Dialog)
               │
-              │  JSON über simple-api :8087
+              │  JSON über REST-API :8097 (oder simple-api :8087)
               ▼
          openclaw-bridge.0.control.command
               │
@@ -31,7 +31,7 @@ Mensch  →  OpenClaw (Dialog)
          Geräte, Szenen, Frigate-States, PV, …
 ```
 
-OpenClaw soll **keine** Shelly-/Zigbee-States direkt schreiben. Alles läuft über `control.command`. Sonst greifen Regeln und Rahmenbedingungen nicht.
+OpenClaw soll **keine** Shelly-/Zigbee-States direkt schreiben. Alles läuft über die Bridge (REST-API oder `control.command`). Sonst greifen Regeln und Rahmenbedingungen nicht.
 
 ---
 
@@ -40,7 +40,7 @@ OpenClaw soll **keine** Shelly-/Zigbee-States direkt schreiben. Alles läuft üb
 Das GitHub-Repo muss `ioBroker.openclaw-bridge` heißen, sonst findet `iobroker url` den Adapter nicht.
 
 ```bash
-iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.12.5
+iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.13.0
 iobroker add openclaw-bridge
 iobroker start openclaw-bridge.0
 ```
@@ -185,80 +185,105 @@ simple-api darf nicht nur auf `127.0.0.1` gebunden sein, wenn OpenClaw auf einem
 
 ## 6. OpenClaw anbinden
 
-Die Bridge hat **kein eigenes HTTP**. OpenClaw erreicht sie nur so:
+Ab 0.13.0 gibt es drei Wege. **Empfohlen ist die REST-API** mit dem mitgelieferten Plugin oder der Skill.
 
 ```text
-OpenClaw  --HTTP GET-->  simple-api :8087  -->  control.command
-OpenClaw  <--HTTP GET--  simple-api :8087  <--  responses.<requestId>
+A) REST-API (empfohlen)   OpenClaw --POST /api/v1/command (Bearer-Token)--> Bridge :8097   Antwort sofort
+B) simple-api (bisher)    OpenClaw --GET /set/...control.command--> simple-api :8087,  danach GET responses.<requestId>
+C) Ereignis-Push          Bridge --POST /hooks/agent--> OpenClaw-Gateway :18789  (gesperrte Regel, Auto-Aus, Bestätigung)
 ```
 
-### 6.1 Voraussetzungen
+### 6.1 Bridge vorbereiten (Tab **OpenClaw**)
 
-1. `openclaw-bridge.0` läuft, `ping` über Objekte ist grün.
-2. `simple-api.0` läuft, Port **8087**.
-3. OpenClaw kann `http://<iobroker-ip>:8087` erreichen (gleiche Maschine: `127.0.0.1`).
-4. simple-api nicht ins Internet öffnen. Nur LAN oder VPN.
+1. **API-Token** setzen, z. B. Ergebnis von `openssl rand -hex 32`. Ohne Token startet die REST-API nur auf `127.0.0.1`.
+2. **REST-API aktivieren**, Bind-Adresse `0.0.0.0` (OpenClaw auf anderem Rechner) oder `127.0.0.1` (gleicher Rechner), Port **8097**.
+3. Speichern. Knopf **Bridge testen (ping)** muss „OK“ melden.
+4. Test von der OpenClaw-Maschine:
 
-### 6.2 Verbindungstest von der OpenClaw-Maschine
+```bash
+curl -sS http://<iobroker-ip>:8097/api/v1/health
+curl -sS -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{"action":"getConstraints"}' http://<iobroker-ip>:8097/api/v1/command
+```
+
+Port 8097 nur im LAN oder VPN erreichbar machen, nie ins Internet.
+
+### 6.2 OpenClaw: Skill (ohne Build, sofort nutzbar)
+
+Die Skill liegt im Adapter unter `openclaw/skill/iobroker-bridge/` (SKILL.md + `scripts/iobroker.mjs`, keine Abhängigkeiten).
+
+```bash
+cp -r <adapter>/openclaw/skill/iobroker-bridge ~/.openclaw/workspace/skills/
+```
+
+In `~/.openclaw/openclaw.json`:
+
+```json5
+{
+  skills: {
+    entries: {
+      "iobroker-bridge": {
+        enabled: true,
+        env: { IOBROKER_BRIDGE_URL: "http://<iobroker-ip>:8097" },
+        apiKey: "<token>",
+      },
+    },
+  },
+}
+```
+
+`apiKey` landet in `IOBROKER_BRIDGE_TOKEN`. Im Chat testen: „Schick einen ping an die ioBroker-Bridge.“
+
+### 6.3 OpenClaw: Plugin (native Tools)
+
+Das Plugin unter `openclaw/plugin/` registriert 13 Tools (`iobroker_constraints`, `iobroker_plan`, `iobroker_list_states`, …). Schreibende Tools (`iobroker_execute`, `iobroker_set_state`, `iobroker_intent`, `iobroker_optimize`, `iobroker_speak`) sind **optional** und müssen bewusst freigegeben werden.
+
+```bash
+openclaw plugins install <adapter>/openclaw/plugin
+openclaw plugins enable iobroker-bridge
+```
+
+```json5
+{
+  plugins: {
+    entries: {
+      "iobroker-bridge": { enabled: true, config: { baseUrl: "http://<iobroker-ip>:8097", token: "<token>" } },
+    },
+  },
+  tools: { allow: ["iobroker_execute", "iobroker_set_state", "iobroker_intent"] },
+}
+```
+
+Prüfen: `openclaw plugins inspect iobroker-bridge --runtime --json`. Details: `openclaw/README.md` im Repository.
+
+### 6.4 Ereignisse an OpenClaw senden (optional)
+
+In `openclaw.json` Hooks einschalten (eigenes Token, nicht das Gateway-Token):
+
+```json5
+{ hooks: { enabled: true, token: "<hook-token>", path: "/hooks" } }
+```
+
+Im Tab **OpenClaw**: Webhook-URL `http://<openclaw-ip>:18789/hooks/agent`, Webhook-Token = `<hook-token>`, Ereignisse wählen. Knopf **Testereignis senden** prüft die Verbindung.
+
+### 6.5 Bisheriger Weg über simple-api
+
+Funktioniert weiter. simple-api.0 muss laufen (Port **8087**). Mit gesetztem API-Token muss das JSON das Feld `"token"` enthalten:
 
 ```bash
 curl -sS -G "http://<iobroker-ip>:8087/set/openclaw-bridge.0.control.command" \
-  --data-urlencode 'value={"action":"ping","requestId":"oc-1"}'
+  --data-urlencode 'value={"action":"ping","requestId":"oc-1","token":"<token>"}'
 
 curl -sS "http://<iobroker-ip>:8087/get/openclaw-bridge.0.responses.oc-1"
 ```
 
-Kommt `pong`, ist der Kanal offen.
+Achtung: simple-api erlaubt ohne eigene Authentifizierung jedem im LAN, beliebige States zu setzen. Deshalb REST-API bevorzugen und in simple-api eine Anmeldung aktivieren.
 
-### 6.3 OpenClaw-Skill
+### 6.6 Menschliche Bestätigung
 
-Lege im OpenClaw-Workspace eine Skill an, z. B.
+Mit **Wer bestätigt kritische Writes = human** kann der Agent kritische Writes nicht selbst freigeben. Die Bridge antwortet `ECONFIRMPENDING` mit einer `confirmationId`. Freigabe: ID nach `openclaw-bridge.0.safety.confirm` schreiben (VIS-Knopf, Telegram-Skript, Admin), Ablehnung nach `safety.reject`. Writes über simple-api/rest-api zählen nicht als Freigabe.
 
-`~/.openclaw/workspace/skills/iobroker-bridge/SKILL.md`
-
-```markdown
----
-name: iobroker-bridge
-description: Steuert das Haus nur über die ioBroker OpenClaw-Bridge.
----
-
-# ioBroker OpenClaw-Bridge
-
-Base-URL: http://<iobroker-ip>:8087
-
-Schreibe ausschließlich nach:
-  openclaw-bridge.0.control.command
-
-Lies die Antwort aus:
-  openclaw-bridge.0.responses.<requestId>
-Fallback:
-  openclaw-bridge.0.control.lastResult
-
-Niemals Shelly-, Zigbee- oder system.-States direkt setzen.
-
-Ablauf jedes Steuerwunsches:
-1. requestId erzeugen (z. B. UUID)
-2. GET /set/openclaw-bridge.0.control.command?value=<JSON>
-3. kurz warten, dann GET /get/openclaw-bridge.0.responses.<requestId>
-4. Bei ok:false die Felder error.code, error.nextAction, error.hint befolgen
-
-Pflicht-Reihenfolge:
-- Zuerst {"action":"getConstraints"}
-- Dann planWithinBounds oder handleIntent mit execute=false
-- Nur Operationen aus allowed ausführen
-- Kritische Writes nur mit "confirmation": true
-
-Beispiele:
-{"action":"ping"}
-{"action":"help"}
-{"action":"getConstraints"}
-{"action":"handleIntent","text":"gute nacht","execute":false}
-{"action":"handleIntent","text":"gute nacht","execute":true,"confirmation":true}
-```
-
-Skill laden, OpenClaw neu starten. Im Chat testen: „Schick einen ping an die ioBroker-Bridge.“
-
-### 6.4 Empfohlener Agent-Loop
+### 6.7 Empfohlener Agent-Loop
 
 | Schritt | Action | Zweck |
 |---|---|---|

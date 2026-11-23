@@ -1,0 +1,65 @@
+{
+  "id": "iobroker-bridge",
+  "name": "ioBroker Bridge",
+  "version": "0.13.0",
+  "description": "Control ioBroker home automation through the openclaw-bridge adapter, strictly inside the operator-defined envelope.",
+  "contracts": {
+    "tools": [
+      "iobroker_constraints",
+      "iobroker_list_states",
+      "iobroker_get_states",
+      "iobroker_plan",
+      "iobroker_events",
+      "iobroker_learning",
+      "iobroker_suggest",
+      "iobroker_pending_confirmations",
+      "iobroker_execute",
+      "iobroker_set_state",
+      "iobroker_intent",
+      "iobroker_optimize",
+      "iobroker_speak"
+    ]
+  },
+  "toolMetadata": {
+    "iobroker_execute": {
+      "optional": true
+    },
+    "iobroker_set_state": {
+      "optional": true
+    },
+    "iobroker_intent": {
+      "optional": true
+    },
+    "iobroker_optimize": {
+      "optional": true
+    },
+    "iobroker_speak": {
+      "optional": true
+    }
+  },
+  "activation": {
+    "onStartup": true
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "baseUrl": {
+        "type": "string",
+        "description": "Bridge REST API, e.g. http://192.168.178.63:8097"
+      },
+      "token": {
+        "type": "string",
+        "description": "API token from the adapter's OpenClaw tab"
+      },
+      "timeoutMs": {
+        "type": "number",
+        "minimum": 1000,
+        "maximum": 120000
+      }
+    },
+    "required": [
+      "baseUrl"
+    ]
+  }
+}
