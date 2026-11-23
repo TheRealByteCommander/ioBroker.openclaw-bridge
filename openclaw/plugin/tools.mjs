@@ -5,7 +5,7 @@ const operation = {
   type: 'object',
   properties: {
     type: { type: 'string', enum: ['setState'] },
-    id: { type: 'string', description: 'ioBroker state id' },
+    id: { type: 'string', description: 'exact ioBroker state id as returned by iobroker_list_states – never guess ids' },
     value: { description: 'target value (boolean, number or string)' },
     reason: { type: 'string', description: 'short reason for the audit log' },
   },
@@ -94,7 +94,7 @@ export const TOOLS = [
     name: 'iobroker_set_state',
     action: 'setState',
     write: true,
-    description: 'Write a single state (subject to rules and confirmation).',
+    description: 'Write a single state (subject to rules and confirmation). Use the exact id from iobroker_list_states; unknown ids fail with EIDUNKNOWN.',
     parameters: {
       type: 'object',
       properties: {

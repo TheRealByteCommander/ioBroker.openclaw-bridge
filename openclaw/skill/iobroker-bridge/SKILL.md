@@ -44,6 +44,8 @@ Ausgabe: bei Erfolg JSON (`data`), bei Fehlern `FEHLER <code>` mit `nextAction` 
   - `wait_for_threshold`: Schwellwert (z. B. PV-Watt) nicht erreicht; dem Nutzer `deficit` nennen, nicht erzwingen.
   - `turn_off_or_wait`, `wait_for_min_off`: Zeitregel; warten oder ausschalten.
   - `use_allowed_prefix`: Gerät liegt außerhalb der Freigabe; anderes Gerät oder Operator fragen.
+  - `use_listStates`: Die ID existiert nicht (`EIDUNKNOWN`). IDs **nie raten**, sondern mit `listStates` und `hint.search` suchen.
+- `ack: false` im Ergebnis heißt: Befehl geschrieben, Gerät bestätigt asynchron. Das ist **kein** Fehler.
 - `confirmation: true` nur senden, wenn der Nutzer der konkreten kritischen Aktion **in diesem Gespräch ausdrücklich zugestimmt** hat.
 - `ECONFIRMPENDING`: Ein Mensch muss freigeben. Sag dem Nutzer die `confirmationId` und dass er sie in ioBroker bestätigen muss (State `safety.confirm`, VIS oder Telegram). Du kannst nicht selbst freigeben. Status: `getPendingConfirmations`.
 - Für wiederholte Versuche nach Netzwerkfehlern dieselbe `requestId` verwenden; die Bridge führt dann nicht doppelt aus (das Skript macht das automatisch).

@@ -188,3 +188,16 @@ test('skill CLI prints data, errors and exit codes', async () => {
     await server.stop();
   }
 });
+
+test('renderResponse states success explicitly and explains ack=false', async () => {
+  const { renderResponse } = await load('openclaw/plugin/client.mjs');
+  const ok = renderResponse({ ok: true, action: 'setState', data: { id: 'a', ack: false } });
+  assert.match(ok, /^ERFOLG: setState ausgeführt\./);
+  assert.match(ok, /KEIN Fehler/);
+  const plan = renderResponse({ ok: true, action: 'planWithinBounds', data: { allowed: [], blocked: [{ id: 'p' }] } });
+  assert.match(plan, /^ERGEBNIS: planWithinBounds – 1 Operation\(en\) blockiert/);
+  assert.equal(plan.includes('KEIN Fehler'), false);
+  const read = renderResponse({ ok: true, action: 'getStates', data: { a: { ack: false } } });
+  assert.equal(read.includes('KEIN Fehler'), false);
+  assert.match(renderResponse({ ok: false, error: { code: 'EX', message: 'm' } }), /^FEHLER EX: m/);
+});

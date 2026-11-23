@@ -2,7 +2,8 @@
 
 /** In-memory stand-in for the ioBroker adapter API used by the bridge. */
 class MockAdapter {
-  constructor({ delayMs = 0 } = {}) {
+  constructor({ delayMs = 0, strictObjects = false } = {}) {
+    this.strictObjects = strictObjects;
     this.version = '0.13.0';
     this.namespace = 'openclaw-bridge.0';
     this.delayMs = delayMs;
@@ -54,6 +55,12 @@ class MockAdapter {
     await this.pause();
     this.writes.push({ id, value });
     this.foreignStates.set(id, { val: value, ack });
+  }
+
+  async getForeignObjectAsync(id) {
+    if (this.foreignObjects.has(id)) return this.foreignObjects.get(id);
+    // non-strict: every id behaves like an existing writable state
+    return !this.strictObjects || this.foreignStates.has(id) ? { type: 'state', common: {} } : null;
   }
 
   async getObjectViewAsync(_design, _search, query) {

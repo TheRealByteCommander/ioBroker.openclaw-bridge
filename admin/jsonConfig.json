@@ -703,6 +703,21 @@
           "xs": 12,
           "sm": 12,
           "md": 6
+        },
+        "requireExistingStates": {
+          "newLine": true,
+          "type": "checkbox",
+          "label": {
+            "en": "Only write existing states",
+            "de": "Nur existierende States schreiben"
+          },
+          "help": {
+            "en": "Rejects writes to ids without an ioBroker state object (EIDUNKNOWN) or with common.write=false (EREADONLY). Prevents agents from creating phantom states by guessing ids.",
+            "de": "Lehnt Schreibzugriffe auf IDs ohne ioBroker-State-Objekt (EIDUNKNOWN) oder mit common.write=false (EREADONLY) ab. Verhindert, dass ein Agent durch geratene IDs Phantom-States anlegt."
+          },
+          "xs": 12,
+          "sm": 12,
+          "md": 6
         }
       }
     },

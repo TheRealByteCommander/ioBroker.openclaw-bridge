@@ -1,4 +1,4 @@
-# Dokumentation — openclaw-bridge 0.13.1
+# Dokumentation — openclaw-bridge 0.13.2
 
 Aktueller Stand 0.13.0 (OpenClaw-Schnittstelle: REST-API, Event-Push, Skill und Plugin). Einstieg: [../README.md](../README.md).
 

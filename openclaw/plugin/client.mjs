@@ -65,10 +65,26 @@ export function createClient({ baseUrl, token = '', timeoutMs = 15000, fetchImpl
   };
 }
 
+// Small local models (field test with qwen3:8b) read a bare `"ack": false` as
+// "the write failed". In ioBroker it only means: command written, the device
+// has not confirmed yet. Say so explicitly.
+// Only writes get the note; on reads `ack: false` is just the state's flag.
+const WRITE_ACTION = /^(setState|batchSetStates|executePlan|handleIntent|voiceCommand|applyHabit|optimizeHome|handlePvSurplus)$/;
+const ACK_NOTE ='Hinweis: "ack": false bedeutet "Befehl wurde geschrieben, Gerät bestätigt noch" – das ist KEIN Fehler.';
+
 /** Short, model-friendly rendering of a bridge response. */
 export function renderResponse(response) {
   if (!response || typeof response !== 'object') return String(response);
-  if (response.ok) return JSON.stringify(response.data ?? {}, null, 2);
+  if (response.ok) {
+    const body = JSON.stringify(response.data ?? {}, null, 2);
+    const blocked = Array.isArray(response.data?.blocked) ? response.data.blocked.length : 0;
+    const lines = [blocked
+      ? `ERGEBNIS: ${response.action || 'Aktion'} – ${blocked} Operation(en) blockiert, siehe blocked[].hint.`
+      : `ERFOLG: ${response.action || 'Aktion'} ausgeführt.`];
+    if (WRITE_ACTION.test(response.action || '') && /"ack": false/.test(body)) lines.push(ACK_NOTE);
+    lines.push(body);
+    return lines.join('\n');
+  }
   const err = response.error || {};
   const lines = [`FEHLER ${err.code || 'EUNKNOWN'}: ${err.message || 'unknown error'}`];
   if (err.nextAction) lines.push(`nextAction: ${err.nextAction}`);

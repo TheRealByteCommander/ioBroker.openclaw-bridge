@@ -31,6 +31,9 @@ Durchgeführt am 2026-11-23 auf einer separaten Testinstanz (Docker `buanet/iobr
 | OpenClaw: Plugin-Installation, 13 Tools registriert | ok nach Fix (Pflichtfeld im Config-Schema entfernt, kein SDK-Import) |
 | OpenClaw `/tools/invoke` → Plugin → Bridge → ioBroker (Sperre und Freigabe) | ok mit `tools.alsoAllow` |
 | Bridge → Webhook `/hooks/agent` → Agent-Sitzung je Ereignis | ok (Annahme); Agent-Antwort nicht getestet, kein Sprachmodell eingerichtet |
+| Chat mit lokalem Modell (Ollama `qwen3:8b`, 16k Kontext): Pumpe → Agent plant Ventil + Pumpe innerhalb der Regeln | ok; Modell las `ack: false` als Fehler → Fix 0.13.2 (explizite Statuszeile) |
+| Chat: kritischer State → `ECONFIRMPENDING`, Agent nennt Bestätigungs-ID, Freigabe über `safety.confirm` schaltet | ok |
+| Chat: Agent rät eine ID (`water.mainWater`) | Bug: Phantom-State angelegt → Fix 0.13.2 (`EIDUNKNOWN`, `requireExistingStates`) |
 
 Offen aus Phase A: Dialog mit Sprachmodell im Chat (Agent wählt Tools selbst).
 

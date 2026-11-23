@@ -4,6 +4,11 @@ const assert = require('node:assert/strict');
 const { BridgeRuntime, isAllowedId, normalizeConfig, isCriticalId, retryAsync } = require('../lib/bridge');
 
 class MockAdapter {
+  // every id behaves like an existing writable state object
+  async getForeignObjectAsync() {
+    return { type: 'state', common: {} };
+  }
+
   constructor(config = {}) {
     this.version = '0.4.0';
     this.config = config;

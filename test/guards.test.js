@@ -10,6 +10,11 @@ const {
 const { BridgeRuntime } = require('../lib/bridge');
 
 class MockAdapter {
+  // every id behaves like an existing writable state object
+  async getForeignObjectAsync() {
+    return { type: 'state', common: {} };
+  }
+
   constructor() {
     this.version = '0.10.0';
     this.states = new Map();

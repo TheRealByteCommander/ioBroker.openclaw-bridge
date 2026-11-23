@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.13.1",
+    "version": "0.13.2",
     "news": {
+      "0.13.2": {
+        "en": "Writes to unknown or read-only state ids are rejected (EIDUNKNOWN/EREADONLY) instead of creating phantom states; plans are validated before the first write. Plugin results state success explicitly. Found in a chat test with a local model.",
+        "de": "Schreibzugriffe auf unbekannte oder schreibgeschützte IDs werden abgelehnt (EIDUNKNOWN/EREADONLY) statt Phantom-States anzulegen; Pläne werden vor dem ersten Schreiben geprüft. Plugin-Ergebnisse melden Erfolg explizit. Gefunden im Chat-Test mit lokalem Modell."
+      },
       "0.13.1": {
         "en": "OpenClaw plugin works on OpenClaw 2026.3.x (no SDK import, install without config, matching id). Docs: enable tools via tools.alsoAllow. Field test on js-controller 7.",
         "de": "OpenClaw-Plugin läuft auf OpenClaw 2026.3.x (kein SDK-Import, Installation ohne Config, passende ID). Doku: Tools über tools.alsoAllow freigeben. Praxistest auf js-controller 7."
@@ -93,6 +97,7 @@
     "allowedActions": "getState,setState,listStates,getStates,ping,help,handleIntent,executePlan,validatePlan,emitContextEvent,getContextEvents,handlePvSurplus,batchSetStates,syncSnapshot,getTelemetry,speak,transcribe,voiceCommand,recordObservation,getHabits,getLearningStatus,setHabitMode,evaluateHabits,suggestAutomation,applyHabit,optimizeHome,checkGuards,getConstraints,planWithinBounds,describeTools,getPendingConfirmations,cancelConfirmation",
     "commandTimeoutMs": 5000,
     "setStateAckAllowed": true,
+    "requireExistingStates": true,
     "criticalStatePrefixes": "system.,admin.0",
     "requireConfirmationActions": "executePlan",
     "comfortTemperatureStateId": "0_userdata.0.hvac.livingRoom.targetTemperature",

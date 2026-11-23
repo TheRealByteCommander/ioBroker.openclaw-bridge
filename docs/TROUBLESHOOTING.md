@@ -22,6 +22,12 @@ Strukturierte Fehler enthalten `code`, `message`, `details`, `nextAction` und of
 
 **Fix:** ID auf erlaubten Prefix; Hint kann `use_allowed_prefix` sein.
 
+**Symptom:** `EIDUNKNOWN` / `EREADONLY`
+
+**Ursache:** Für die ID existiert kein State-Objekt (meist eine vom Agenten geratene ID) bzw. das Objekt ist `common.write=false`. Ohne diese Prüfung würde ioBroker einen objektlosen Phantom-State anlegen.
+
+**Fix:** ID per `listStates` (Hint `use_listStates` mit Suchbegriff) ermitteln. Abschaltbar über `requireExistingStates` (nicht empfohlen).
+
 ---
 
 ## 3) Critical action pending

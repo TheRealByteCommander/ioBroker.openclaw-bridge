@@ -1,7 +1,7 @@
 {
   "id": "iobroker-bridge",
   "name": "ioBroker Bridge",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "description": "Control ioBroker home automation through the openclaw-bridge adapter, strictly inside the operator-defined envelope.",
   "contracts": {
     "tools": [

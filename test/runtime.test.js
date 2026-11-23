@@ -341,3 +341,33 @@ test('intent detection understands english phrases', async () => {
   assert.equal(detectIntent("I'm cold").comfort, 'cold');
   assert.deepEqual(detectIntent('good night').names, ['bedtime']);
 });
+
+test('writes to unknown or read-only states are rejected before anything is written', async () => {
+  const adapter = new MockAdapter({ strictObjects: true });
+  adapter.foreignStates.set('0_userdata.0.valve', { val: false });
+  adapter.foreignObjects.set('0_userdata.0.sensor', { type: 'state', common: { write: false } });
+  const bridge = new BridgeRuntime(adapter, { allowedPrefixes: '0_userdata.0', habitLearnFromCommands: false, requireConfirmationActions: '' });
+
+  const unknown = await bridge.processCommand({ action: 'setState', id: '0_userdata.0.water.guess', value: true });
+  assert.equal(unknown.error.code, 'EIDUNKNOWN');
+  assert.equal(unknown.error.nextAction, 'call_listStates_and_use_an_existing_id');
+  assert.equal(unknown.error.hint.search, 'guess');
+
+  const readOnly = await bridge.processCommand({ action: 'setState', id: '0_userdata.0.sensor', value: 1 });
+  assert.equal(readOnly.error.code, 'EREADONLY');
+
+  // one bad id rejects the whole plan: the valid write must not happen either
+  const plan = await bridge.processCommand({ action: 'executePlan', confirmation: true, operations: [
+    { type: 'setState', id: '0_userdata.0.valve', value: true },
+    { type: 'setState', id: '0_userdata.0.water.guess', value: true },
+  ] });
+  assert.equal(plan.error.code, 'EIDUNKNOWN');
+  assert.equal(adapter.writes.length, 0);
+
+  const split = await bridge.processCommand({ action: 'planWithinBounds', operations: [{ type: 'setState', id: '0_userdata.0.water.guess', value: true }] });
+  assert.equal(split.data.blocked[0].error.code, 'EIDUNKNOWN');
+  assert.equal(split.data.blocked[0].hint.type, 'use_listStates');
+
+  const relaxed = new BridgeRuntime(adapter, { allowedPrefixes: '0_userdata.0', habitLearnFromCommands: false, requireExistingStates: false });
+  assert.equal((await relaxed.processCommand({ action: 'setState', id: '0_userdata.0.water.guess', value: true })).ok, true);
+});

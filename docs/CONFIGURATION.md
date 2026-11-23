@@ -33,6 +33,7 @@ Quelle zur Laufzeit: Instanz-Native. UI: `admin/jsonConfig.json`. Jedes Feld hie
 | `allowedActions` | alle dokumentierten Actions | CSV-Whitelist. `ping`, `help`, `describeTools`, `getPendingConfirmations` sind immer erlaubt |
 | `commandTimeoutMs` | `5000` | Timeout pro Command |
 | `setStateAckAllowed` | `true` | `ack: true` in `setState` erlaubt |
+| `requireExistingStates` | `true` | Schreiben nur auf existierende, schreibbare State-Objekte (`EIDUNKNOWN`, `EREADONLY`); verhindert Phantom-States durch geratene IDs |
 | `criticalStatePrefixes` | `system.,admin.0` | Writes brauchen Confirmation |
 | `requireConfirmationActions` | `executePlan` | Actions, die Confirmation erzwingen können |
 

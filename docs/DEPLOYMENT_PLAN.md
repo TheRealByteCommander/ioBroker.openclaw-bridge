@@ -1,10 +1,10 @@
 # DEPLOYMENT PLAN
 
-Stand: Adapter **0.13.1** (Tag `v0.13.1`).
+Stand: Adapter **0.13.2** (Tag `v0.13.2`).
 
 ## 1. Pre-deploy
 
-- Code auf dem Host aktualisieren: `iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.13.1`.
+- Code auf dem Host aktualisieren: `iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.13.2`.
 - Vorher Backup der Instanz-Einstellungen (Admin → Instanz → Export) und `iobroker backup`.
 - Instanz-Einstellungsseite prüfen:
   - **OpenClaw:** API-Token setzen, REST-API und Bind-Adresse, optional Webhook und Bestätigungsmodus

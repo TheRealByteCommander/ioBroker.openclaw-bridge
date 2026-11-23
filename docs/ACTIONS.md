@@ -44,7 +44,7 @@ Liefert erlaubte Actions, Safety, Envelope-Prinzip, Phasen, `quickStart`.
 { "action": "listStates" }
 ```
 
-`listStates` listet States unter `allowedPrefixes`. Optionen: `prefix`, `search` (ID und Name), `withMeta` (Name, Rolle, Typ, Einheit, Schreibbarkeit), `limit` (Default 500). Antwort mit `count`, `total`, `truncated`. IDs außerhalb der ACL: `EIDFORBIDDEN`.
+`listStates` listet States unter `allowedPrefixes`. Optionen: `prefix`, `search` (ID und Name), `withMeta` (Name, Rolle, Typ, Einheit, Schreibbarkeit), `limit` (Default 500). Antwort mit `count`, `total`, `truncated`. IDs außerhalb der ACL: `EIDFORBIDDEN`. Schreibende Aktionen lehnen IDs ohne State-Objekt mit `EIDUNKNOWN` und schreibgeschützte States mit `EREADONLY` ab (`requireExistingStates`); ein Plan mit einer solchen ID schreibt gar nichts.
 
 ```json
 { "action": "listStates", "prefix": "shelly.0", "search": "pumpe", "withMeta": true, "limit": 20 }

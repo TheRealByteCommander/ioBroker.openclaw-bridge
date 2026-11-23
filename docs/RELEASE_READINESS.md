@@ -2,7 +2,7 @@
 
 ## Status
 
-- Version: **0.13.1**
+- Version: **0.13.2**
 - Lint: GREEN (`npm run lint`)
 - Test suite: GREEN (`npm test` — 112 Tests)
 - CI: `.github/workflows/test.yml` (Node 20/22)

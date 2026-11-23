@@ -2,6 +2,15 @@
 
 Alle nennenswerten Änderungen an `iobroker.openclaw-bridge`.
 
+## 0.13.2 — 2026-11-23
+
+Chat-Test mit OpenClaw 2026.3.2 und lokalem Modell (Ollama `qwen3:8b`):
+
+- Schreibende Aktionen lehnen IDs ohne State-Objekt mit `EIDUNKNOWN` (Hint `use_listStates` mit Suchbegriff) und schreibgeschützte States mit `EREADONLY` ab. Vorher legte ioBroker bei einer vom Agenten geratenen ID einen objektlosen Phantom-State an und die Bridge meldete Erfolg. Neue Option `requireExistingStates` (Standard an).
+- `executePlan` prüft alle Operationen vor dem ersten Schreiben; ein Plan mit einer ungültigen ID schreibt nichts mehr.
+- OpenClaw-Plugin/Skill: Ergebnisse beginnen mit `ERFOLG`, `ERGEBNIS … blockiert` oder `FEHLER`. Bei Schreibaktionen erklärt ein Hinweis, dass `ack: false` kein Fehler ist (kleine Modelle hatten das als Fehlschlag gemeldet).
+- Tool-Beschreibungen und SKILL.md: IDs nie raten, sondern per `listStates` ermitteln.
+
 ## 0.13.1 — 2026-11-23
 
 Ergebnisse des Praxistests (ioBroker js-controller 7.2.5 in Docker, OpenClaw 2026.3.2), Details in [docs/ROADMAP_1.0.md](docs/ROADMAP_1.0.md):
