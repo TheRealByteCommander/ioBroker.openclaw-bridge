@@ -5,7 +5,7 @@
 //   node iobroker.mjs tools [raw|openai|anthropic]
 //   node iobroker.mjs health
 //
-// Env: IOBROKER_BRIDGE_URL (e.g. http://192.168.178.63:8097), IOBROKER_BRIDGE_TOKEN
+// Env: IOBROKER_BRIDGE_URL (e.g. http://iobroker.local:8097), IOBROKER_BRIDGE_TOKEN
 // Exit code: 0 = ok, 1 = bridge returned ok:false, 2 = usage / connection error.
 
 import { createClient, renderResponse } from './client.mjs';

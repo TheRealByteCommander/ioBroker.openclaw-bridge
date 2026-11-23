@@ -3,6 +3,6 @@
     "meta": "https://raw.githubusercontent.com/TheRealByteCommander/ioBroker.openclaw-bridge/master/io-package.json",
     "icon": "https://raw.githubusercontent.com/TheRealByteCommander/ioBroker.openclaw-bridge/master/openclaw-bridge.png",
     "type": "misc-data",
-    "version": "0.13.0"
+    "version": "0.13.1"
   }
 }

@@ -13,11 +13,26 @@ Stand: 0.13.0 (2026-11-23).
 
 ## Offen bis 1.0.0
 
-### Phase A – Praxistest (Pflicht)
+### Phase A – Praxistest
 
-1. Test auf einer **separaten** ioBroker-Testinstanz (z. B. `dev-server` oder Docker), nicht auf dem Produktivsystem.
-2. Ende-zu-Ende mit echtem OpenClaw-Gateway: Skill **und** Plugin laden, `ping`, `getConstraints`, gesperrter `planWithinBounds` auf eine Interlock-Regel, Freigabe einer kritischen Aktion über `safety.confirm`, Webhook-Ereignis im Chat.
-3. Ergebnis als Abschnitt in dieser Datei dokumentieren; Plugin-Hinweis in `openclaw/README.md` entsprechend anpassen.
+Durchgeführt am 2026-11-23 auf einer separaten Testinstanz (Docker `buanet/iobroker`, js-controller 7.2.5, Node 24) mit OpenClaw 2026.3.2. Adapter aus `npm pack` installiert.
+
+| Prüfung | Ergebnis |
+|---|---|
+| Adapterstart auf echtem js-controller, `info.connection`, Token-Warnung | ok |
+| Token per `iobroker object set` (verschlüsselt durch js-controller) wird korrekt gelesen | ok |
+| REST-API: `health` ohne Token, `tools` ohne Token → 401, `command` mit Token | ok |
+| `getConstraints` / `listStates search` / `planWithinBounds` mit Companion-Hinweis (Ventil) | ok |
+| Direkter Pumpen-Write gesperrt, Plan Ventil + Pumpe schaltet in ioBroker | ok |
+| `confirmationMode=human`: Agent-`confirmation:true` wirkungslos, Freigabe über `safety.confirm` | ok |
+| Idempotenz (`requestId` doppelt) | ok |
+| `control.command` mit Token: Antwort, Token danach als `***`, falsches Token → `EUNAUTHORIZED` | ok |
+| Maximale Einschaltdauer 1 min: echtes Auto-Aus + Kontext-Event | ok |
+| OpenClaw: Plugin-Installation, 13 Tools registriert | ok nach Fix (Pflichtfeld im Config-Schema entfernt, kein SDK-Import) |
+| OpenClaw `/tools/invoke` → Plugin → Bridge → ioBroker (Sperre und Freigabe) | ok mit `tools.alsoAllow` |
+| Bridge → Webhook `/hooks/agent` → Agent-Sitzung je Ereignis | ok (Annahme); Agent-Antwort nicht getestet, kein Sprachmodell eingerichtet |
+
+Offen aus Phase A: Dialog mit Sprachmodell im Chat (Agent wählt Tools selbst).
 
 ### Phase B – ioBroker-Standard und Veröffentlichung
 

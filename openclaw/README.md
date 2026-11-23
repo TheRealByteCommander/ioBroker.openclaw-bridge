@@ -60,7 +60,7 @@ cp -r openclaw/skill/iobroker-bridge ~/.openclaw/workspace/skills/
 }
 ```
 
-Die Skill ruft `node {baseDir}/scripts/iobroker.mjs <action> '<json>'` auf. Manuell testen:
+Die Skill ruft `node {baseDir}/scripts/iobroker.mjs <action> '<json>'` auf und braucht deshalb das Tool `exec`. Das Profil `messaging` enthält `exec` nicht. Dort ist das Plugin der bessere Weg. Manuell testen:
 
 ```bash
 IOBROKER_BRIDGE_URL=http://<iobroker-ip>:8097 IOBROKER_BRIDGE_TOKEN=<token> \
@@ -85,10 +85,21 @@ openclaw plugins inspect iobroker-bridge --runtime --json
       },
     },
   },
-  // Schreibende Tools sind optional und müssen bewusst freigegeben werden:
-  tools: { allow: ["iobroker_execute", "iobroker_set_state", "iobroker_intent", "iobroker_optimize", "iobroker_speak"] },
+  // Freigabe der Tools. Mit gesetztem tools.profile (z. B. "messaging") MUSS es
+  // alsoAllow sein: eine allow-Liste, die nur Plugins nennt, wird verworfen.
+  tools: { alsoAllow: ["iobroker-bridge"] },              // alle 13 Tools
+  // feiner: alsoAllow: ["iobroker_constraints", "iobroker_plan", "iobroker_list_states", "iobroker_get_states", "iobroker_execute"]
 }
 ```
+
+Danach `openclaw gateway restart`. Ohne Sprachmodell prüfen lässt sich das über die Tools-API des Gateways:
+
+```bash
+curl -s -H "Authorization: Bearer <gateway.auth.token>" -H "Content-Type: application/json" \
+  -d '{"tool":"iobroker_constraints","args":{}}' http://127.0.0.1:18789/tools/invoke
+```
+
+404 „Tool not available“ heißt: Tool nicht freigegeben (siehe `alsoAllow`).
 
 | Tool | Bridge-Action | schreibt |
 |---|---|---|
@@ -106,7 +117,7 @@ openclaw plugins inspect iobroker-bridge --runtime --json
 | `iobroker_optimize` | `optimizeHome` | ja (optional) |
 | `iobroker_speak` | `speak` | ja (optional) |
 
-Hinweis: Die Plugin-SDK von OpenClaw ist als experimentell dokumentiert. Das Plugin ist gegen die dokumentierte API (`definePluginEntry`, `api.registerTool`, `openclaw.plugin.json`) geschrieben und mit einer Test-Attrappe der API geprüft, aber noch nicht gegen ein laufendes Gateway. Falls es mit deiner OpenClaw-Version nicht lädt, nutze die Skill; beide sprechen dieselbe API.
+Getestet mit OpenClaw **2026.3.2** (Gateway, `/tools/invoke`, Hooks) gegen ioBroker js-controller 7.2.5. Das Plugin exportiert ein einfaches Objekt mit `register(api)` und kommt ohne SDK-Import aus; so lädt es auf älteren Gateways und auf neueren mit `definePluginEntry`.
 
 ## 3. Ereignisse von ioBroker an OpenClaw
 

@@ -14,7 +14,7 @@ export class BridgeClientError extends Error {
 
 /**
  * @param {{ baseUrl: string, token?: string, timeoutMs?: number, fetchImpl?: typeof fetch }} options
- *   baseUrl e.g. http://192.168.178.63:8097 (without /api/v1)
+ *   baseUrl e.g. http://iobroker.local:8097 (without /api/v1)
  */
 export function createClient({ baseUrl, token = '', timeoutMs = 15000, fetchImpl = globalThis.fetch } = {}) {
   if (!baseUrl) throw new BridgeClientError('baseUrl is required (e.g. http://iobroker:8097)');

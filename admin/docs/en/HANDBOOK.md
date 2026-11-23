@@ -46,7 +46,7 @@ Since 0.13.0 the recommended path is the built-in REST API:
 
 1. Tab **OpenClaw**: set an **API token** (e.g. `openssl rand -hex 32`), enable the **REST API** (bind `0.0.0.0` if OpenClaw runs on another host, port `8097`), save, press **Test bridge (ping)**.
 2. From the OpenClaw host: `curl -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"action":"getConstraints"}' http://<iobroker-ip>:8097/api/v1/command`.
-3. Install the bundled **skill** (`openclaw/skill/iobroker-bridge`, set `IOBROKER_BRIDGE_URL` and the token as `apiKey`) or the **plugin** (`openclaw plugins install <adapter>/openclaw/plugin`, config `baseUrl` + `token`). Write tools of the plugin are optional and must be allowed via `tools.allow`.
+3. Install the bundled **skill** (`openclaw/skill/iobroker-bridge`, set `IOBROKER_BRIDGE_URL` and the token as `apiKey`) or the **plugin** (`openclaw plugins install <adapter>/openclaw/plugin`, config `baseUrl` + `token`). Enable the plugin tools with `tools.alsoAllow: ["iobroker-bridge"]` (with a tool profile such as `messaging`, a plugin-only `tools.allow` is ignored). The skill needs the `exec` tool.
 4. Optional: enable `hooks` in `openclaw.json` and set the webhook URL `http://<openclaw-ip>:18789/hooks/agent` + hook token in the OpenClaw tab to receive events (blocked rules, auto-off, pending confirmations).
 5. Optional: confirmation mode **human** – the agent cannot approve critical writes; an operator writes the confirmation id to `safety.confirm`.
 

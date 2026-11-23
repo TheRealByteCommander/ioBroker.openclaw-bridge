@@ -1,6 +1,6 @@
 # OpenClaw-Bridge — Ausführliche Anleitung
 
-**Adapter:** `openclaw-bridge` · **Paket:** `iobroker.openclaw-bridge` · **Version:** 0.13.0
+**Adapter:** `openclaw-bridge` · **Paket:** `iobroker.openclaw-bridge` · **Version:** 0.13.1
 
 Diese Datei liegt **im Adapter** und ist dort lesbar:
 
@@ -40,7 +40,7 @@ OpenClaw soll **keine** Shelly-/Zigbee-States direkt schreiben. Alles läuft üb
 Das GitHub-Repo muss `ioBroker.openclaw-bridge` heißen, sonst findet `iobroker url` den Adapter nicht.
 
 ```bash
-iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.13.0
+iobroker url https://github.com/TheRealByteCommander/ioBroker.openclaw-bridge#v0.13.1
 iobroker add openclaw-bridge
 iobroker start openclaw-bridge.0
 ```
@@ -232,7 +232,7 @@ In `~/.openclaw/openclaw.json`:
 }
 ```
 
-`apiKey` landet in `IOBROKER_BRIDGE_TOKEN`. Im Chat testen: „Schick einen ping an die ioBroker-Bridge.“
+`apiKey` landet in `IOBROKER_BRIDGE_TOKEN`. Die Skill braucht das Tool `exec` (nicht im Profil `messaging` enthalten). Im Chat testen: „Schick einen ping an die ioBroker-Bridge.“
 
 ### 6.3 OpenClaw: Plugin (native Tools)
 
@@ -250,9 +250,11 @@ openclaw plugins enable iobroker-bridge
       "iobroker-bridge": { enabled: true, config: { baseUrl: "http://<iobroker-ip>:8097", token: "<token>" } },
     },
   },
-  tools: { allow: ["iobroker_execute", "iobroker_set_state", "iobroker_intent"] },
+  tools: { alsoAllow: ["iobroker-bridge"] },
 }
 ```
+
+Wichtig: Ist ein `tools.profile` gesetzt (z. B. `messaging`), müssen die Tools über `tools.alsoAllow` freigegeben werden. Eine `tools.allow`-Liste, die nur Plugins nennt, ignoriert OpenClaw. Danach `openclaw gateway restart`.
 
 Prüfen: `openclaw plugins inspect iobroker-bridge --runtime --json`. Details: `openclaw/README.md` im Repository.
 

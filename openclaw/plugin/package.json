@@ -1,6 +1,6 @@
 {
-  "name": "@byte-commander/openclaw-iobroker-bridge",
-  "version": "0.13.0",
+  "name": "@byte-commander/iobroker-bridge",
+  "version": "0.13.1",
   "description": "OpenClaw plugin: ioBroker tools via the openclaw-bridge adapter",
   "type": "module",
   "main": "./index.js",

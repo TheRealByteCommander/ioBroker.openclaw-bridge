@@ -66,6 +66,17 @@ test('plugin manifest declares every tool and marks write tools optional', async
     assert.equal(Boolean(manifest.toolMetadata[tool.name]?.optional), tool.write, tool.name);
   }
   assert.deepEqual(pkg.openclaw.extensions, ['./index.js']);
+  // `openclaw plugins install` writes an empty config entry first; a required
+  // field makes the install fail (found on OpenClaw 2026.3.2).
+  assert.equal(manifest.configSchema.required, undefined);
+  // package name (without scope) must match the manifest id to avoid id-mismatch warnings
+  assert.equal(pkg.name.split('/').pop(), manifest.id);
+  // older gateways have no openclaw/plugin-sdk/plugin-entry export
+  const entry = fs.readFileSync(path.join(pluginDir, 'index.js'), 'utf8');
+  assert.equal(entry.includes('plugin-sdk'), false);
+  const { default: plugin } = await load('openclaw/plugin/index.js');
+  assert.equal(plugin.id, manifest.id);
+  assert.equal(typeof plugin.register, 'function');
   assert.equal(pkg.version, ioPackage.common.version);
   assert.equal(manifest.version, ioPackage.common.version);
 });

@@ -2,6 +2,16 @@
 
 Alle nennenswerten Änderungen an `iobroker.openclaw-bridge`.
 
+## 0.13.1 — 2026-11-23
+
+Ergebnisse des Praxistests (ioBroker js-controller 7.2.5 in Docker, OpenClaw 2026.3.2), Details in [docs/ROADMAP_1.0.md](docs/ROADMAP_1.0.md):
+
+- OpenClaw-Plugin: kein Import von `openclaw/plugin-sdk/plugin-entry` mehr (fehlt in 2026.3.x); einfacher Default-Export mit `register(api)`.
+- OpenClaw-Plugin: `baseUrl` ist im Config-Schema nicht mehr Pflicht. `openclaw plugins install` legt den Eintrag zuerst leer an und scheiterte daran.
+- Paketname des Plugins passt zur Manifest-ID (keine „id mismatch“-Warnung).
+- Doku: Plugin-Tools über `tools.alsoAllow` freigeben. Mit gesetztem `tools.profile` ignoriert OpenClaw eine reine Plugin-`allow`-Liste. Die Skill braucht das Tool `exec`.
+- Beispieladressen in Kommentaren neutralisiert.
+
 ## 0.13.0 — 2026-11-23
 
 **OpenClaw-Schnittstelle**

@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "openclaw-bridge",
-    "version": "0.13.0",
+    "version": "0.13.1",
     "news": {
+      "0.13.1": {
+        "en": "OpenClaw plugin works on OpenClaw 2026.3.x (no SDK import, install without config, matching id). Docs: enable tools via tools.alsoAllow. Field test on js-controller 7.",
+        "de": "OpenClaw-Plugin läuft auf OpenClaw 2026.3.x (kein SDK-Import, Installation ohne Config, passende ID). Doku: Tools über tools.alsoAllow freigeben. Praxistest auf js-controller 7."
+      },
       "0.13.0": {
         "en": "OpenClaw interface: REST API with bearer token, tool catalog, event push via OpenClaw webhook, SSE stream, OpenClaw skill and plugin. Serial command queue, timeout abort, idempotent requestId, human confirmation mode, response cleanup, restricted STT audio directory.",
         "de": "OpenClaw-Schnittstelle: REST-API mit Bearer-Token, Tool-Katalog, Event-Push per OpenClaw-Webhook, SSE-Stream, OpenClaw-Skill und -Plugin. Serielle Command-Queue, Abbruch bei Timeout, idempotente requestId, menschliche Bestätigung, Aufräumen alter Antworten, festes STT-Audioverzeichnis."
